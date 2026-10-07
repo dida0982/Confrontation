@@ -1,0 +1,596 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/training_dummy.tscn" id="2_dummy"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_hud"]
+[ext_resource type="Shader" path="res://materials/grade.gdshader" id="4_grid"]
+[ext_resource type="Script" path="res://scripts/match/team_deathmatch.gd" id="5_tdm"]
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="6_menu"]
+
+[sub_resource type="ProceduralSkyMaterial" id="sky_material"]
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_material")
+
+[sub_resource type="Environment" id="environment"]
+background_mode = 2
+sky = SubResource("sky")
+tonemap_mode = 2
+ssao_enabled = true
+
+[sub_resource type="ShaderMaterial" id="mat_floor"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.42, 0.43, 0.46, 1)
+shader_parameter/line_color = Color(0.33, 0.34, 0.37, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_wall"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.78, 0.75, 0.68, 1)
+shader_parameter/line_color = Color(0.66, 0.63, 0.57, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_cover"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.3, 0.55, 0.7, 1)
+shader_parameter/line_color = Color(0.22, 0.42, 0.55, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_zone_a"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.75, 0.5, 0.3, 1)
+shader_parameter/line_color = Color(0.62, 0.4, 0.24, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_zone_b"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.35, 0.65, 0.55, 1)
+shader_parameter/line_color = Color(0.27, 0.52, 0.44, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_zone_azul"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.3, 0.45, 0.75, 1)
+shader_parameter/line_color = Color(0.24, 0.36, 0.62, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_zone_vermelho"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.75, 0.32, 0.3, 1)
+shader_parameter/line_color = Color(0.62, 0.25, 0.24, 1)
+
+[node name="Porto" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, 35, 0)
+shadow_enabled = true
+directional_shadow_max_distance = 120.0
+
+[node name="Mapa" type="Node3D" parent="."]
+
+[node name="Chao" type="CSGBox3D" parent="Mapa"]
+position = Vector3(0, -0.5, 0)
+use_collision = true
+size = Vector3(72, 1, 102)
+material = SubResource("mat_floor")
+
+[node name="Zonas" type="Node3D" parent="Mapa"]
+
+[node name="Zona_BombA" type="CSGBox3D" parent="Mapa/Zonas"]
+position = Vector3(-23.5, 0.01, -23)
+size = Vector3(23, 0.02, 22)
+material = SubResource("mat_zone_a")
+
+[node name="Zona_BombB" type="CSGBox3D" parent="Mapa/Zonas"]
+position = Vector3(23.5, 0.01, -23)
+size = Vector3(23, 0.02, 22)
+material = SubResource("mat_zone_b")
+
+[node name="Zona_BaseAzul" type="CSGBox3D" parent="Mapa/Zonas"]
+position = Vector3(0, 0.01, 45)
+size = Vector3(40, 0.02, 10)
+material = SubResource("mat_zone_azul")
+
+[node name="Zona_BaseVermelha" type="CSGBox3D" parent="Mapa/Zonas"]
+position = Vector3(0, 0.01, -45)
+size = Vector3(40, 0.02, 10)
+material = SubResource("mat_zone_vermelho")
+
+[node name="Blocos" type="Node3D" parent="Mapa"]
+
+[node name="MuroOeste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-35.5, 4, 0)
+use_collision = true
+size = Vector3(1, 8, 102)
+material = SubResource("mat_wall")
+
+[node name="MuroLeste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(35.5, 4, 0)
+use_collision = true
+size = Vector3(1, 8, 102)
+material = SubResource("mat_wall")
+
+[node name="MuroNorte" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(0, 4, -50.5)
+use_collision = true
+size = Vector3(72, 8, 1)
+material = SubResource("mat_wall")
+
+[node name="MuroSul" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(0, 4, 50.5)
+use_collision = true
+size = Vector3(72, 8, 1)
+material = SubResource("mat_wall")
+
+[node name="BaseAzul_Oeste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-27.5, 3, 45)
+use_collision = true
+size = Vector3(15, 6, 10)
+material = SubResource("mat_wall")
+
+[node name="BaseAzul_Leste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(27.5, 3, 45)
+use_collision = true
+size = Vector3(15, 6, 10)
+material = SubResource("mat_wall")
+
+[node name="BaseVermelha_Oeste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-27.5, 3, -45)
+use_collision = true
+size = Vector3(15, 6, 10)
+material = SubResource("mat_wall")
+
+[node name="BaseVermelha_Leste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(27.5, 3, -45)
+use_collision = true
+size = Vector3(15, 6, 10)
+material = SubResource("mat_wall")
+
+[node name="Predio_SudOeste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-16, 3, 21)
+use_collision = true
+size = Vector3(22, 6, 18)
+material = SubResource("mat_wall")
+
+[node name="Predio_SudLeste" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(16, 3, 21)
+use_collision = true
+size = Vector3(22, 6, 18)
+material = SubResource("mat_wall")
+
+[node name="Bloco_Oeste_Sul" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-19.5, 3, 7.5)
+use_collision = true
+size = Vector3(15, 6, 9)
+material = SubResource("mat_wall")
+
+[node name="Bloco_Oeste_Norte" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-19.5, 3, -7.5)
+use_collision = true
+size = Vector3(15, 6, 9)
+material = SubResource("mat_wall")
+
+[node name="Bloco_Leste_Sul" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(19.5, 3, 7.5)
+use_collision = true
+size = Vector3(15, 6, 9)
+material = SubResource("mat_wall")
+
+[node name="Bloco_Leste_Norte" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(19.5, 3, -7.5)
+use_collision = true
+size = Vector3(15, 6, 9)
+material = SubResource("mat_wall")
+
+[node name="Bloco_A_Meio_Sul" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-8.5, 3, -16)
+use_collision = true
+size = Vector3(7, 6, 8)
+material = SubResource("mat_wall")
+
+[node name="Bloco_A_Meio_Norte" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-8.5, 3, -29)
+use_collision = true
+size = Vector3(7, 6, 10)
+material = SubResource("mat_wall")
+
+[node name="Bloco_B_Meio" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(8.5, 3, -23)
+use_collision = true
+size = Vector3(7, 6, 22)
+material = SubResource("mat_wall")
+
+[node name="A_Curva" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-29, 3, 26)
+use_collision = true
+size = Vector3(4, 6, 4)
+material = SubResource("mat_wall")
+
+[node name="B_Curva" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(29, 3, 26)
+use_collision = true
+size = Vector3(4, 6, 4)
+material = SubResource("mat_wall")
+
+[node name="A_Entrada" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-33, 3, -12)
+use_collision = true
+size = Vector3(4, 6, 4)
+material = SubResource("mat_wall")
+
+[node name="B_Entrada" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(33, 3, -12)
+use_collision = true
+size = Vector3(4, 6, 4)
+material = SubResource("mat_wall")
+
+[node name="Meio_Torre" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(0, 1.75, 0)
+use_collision = true
+size = Vector3(4, 3.5, 4)
+material = SubResource("mat_cover")
+
+[node name="Meio_Caixa1" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-8, 0.5, 6)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Meio_Caixa2" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(8, 0.5, -6)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Meio_Caixa3" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(7, 1, 7)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="Meio_Caixa4" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-7, 1, -7)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="A_Plataforma" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-23, 0.5, -25)
+use_collision = true
+size = Vector3(6, 1, 6)
+material = SubResource("mat_cover")
+
+[node name="A_CaixaAlta" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-32, 1, -23)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="A_Caixa" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-16, 0.5, -16)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="A_Pilar" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-23, 1.5, -32)
+use_collision = true
+size = Vector3(2, 3, 2)
+material = SubResource("mat_cover")
+
+[node name="A_CaixaFundo" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-14, 1, -30)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="B_Plataforma" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(23, 0.5, -25)
+use_collision = true
+size = Vector3(6, 1, 6)
+material = SubResource("mat_cover")
+
+[node name="B_CaixaAlta1" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(30, 1, -19)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="B_CaixaAlta2" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(23, 1, -16)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="B_Caixa" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(16, 0.5, -29)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="B_Pilar" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(27, 1.5, -31)
+use_collision = true
+size = Vector3(2, 3, 2)
+material = SubResource("mat_cover")
+
+[node name="A_Rota_Caixa1" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-33, 0.5, 19)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="A_Rota_Caixa2" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-29, 1, 7)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="B_Rota_Caixa1" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(33, 0.5, 21)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="B_Rota_Caixa2" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(29, 1, 5)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="Saida_Azul_Caixa1" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-24, 0.5, 34)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Saida_Azul_Caixa2" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(24, 0.5, 34)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Saida_Azul_Caixa3" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-5, 1, 35)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="Saida_Azul_Caixa4" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(5, 0.5, 33)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Saida_Vermelha_Caixa1" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-19, 0.5, -37)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Saida_Vermelha_Caixa2" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(19, 0.5, -36)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Meio_Baixo_Caixa" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(3, 0.5, 21)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Meio_Cima_Caixa" type="CSGBox3D" parent="Mapa/Blocos"]
+position = Vector3(-3, 0.5, -26)
+use_collision = true
+size = Vector3(2, 1, 2)
+material = SubResource("mat_cover")
+
+[node name="Nomes" type="Node3D" parent="Mapa"]
+
+[node name="Nome1" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(-23, 0.03, -17)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "A"
+font_size = 220
+outline_size = 0
+
+[node name="Nome2" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(23, 0.03, -17)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "B"
+font_size = 220
+outline_size = 0
+
+[node name="Nome3" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(0, 0.03, 7)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "MEIO"
+font_size = 120
+outline_size = 0
+
+[node name="Nome4" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(-31, 0.03, 0)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "A PRINCIPAL"
+font_size = 64
+outline_size = 0
+
+[node name="Nome5" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(31, 0.03, 0)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "B PRINCIPAL"
+font_size = 64
+outline_size = 0
+
+[node name="Nome6" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(-8.5, 0.03, -22)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "A CURTO"
+font_size = 40
+outline_size = 0
+
+[node name="Nome7" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(-19.5, 0.03, 0)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "LIGAÇÃO A"
+font_size = 52
+outline_size = 0
+
+[node name="Nome8" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(19.5, 0.03, 0)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "LIGAÇÃO B"
+font_size = 52
+outline_size = 0
+
+[node name="Nome9" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(0, 0.03, 24)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "MEIO DE BAIXO"
+font_size = 56
+outline_size = 0
+
+[node name="Nome10" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(0, 0.03, -19)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "MEIO DE CIMA"
+font_size = 56
+outline_size = 0
+
+[node name="Nome11" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(0, 0.03, 37)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "BASE AZUL"
+font_size = 90
+outline_size = 0
+
+[node name="Nome12" type="Label3D" parent="Mapa/Nomes"]
+position = Vector3(0, 0.03, -37)
+rotation_degrees = Vector3(-90, 0, 0)
+pixel_size = 0.015
+modulate = Color(1, 1, 1, 0.55)
+text = "BASE VERMELHA"
+font_size = 90
+outline_size = 0
+
+[node name="Spawns" type="Node3D" parent="."]
+
+[node name="Azul" type="Node3D" parent="Spawns"]
+
+[node name="Spawn1" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(-15, 0, 46)
+
+[node name="Spawn2" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(-8, 0, 46)
+
+[node name="Spawn3" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(0, 0, 46)
+
+[node name="Spawn4" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(8, 0, 46)
+
+[node name="Spawn5" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(15, 0, 46)
+
+[node name="Vermelho" type="Node3D" parent="Spawns"]
+
+[node name="Spawn1" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(-15, 0, -46)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Spawn2" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(-8, 0, -46)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Spawn3" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(0, 0, -46)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Spawn4" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(8, 0, -46)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Spawn5" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(15, 0, -46)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Bonecos" type="Node3D" parent="."]
+
+[node name="Boneco1" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(-24, 1, -25)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 1"
+
+[node name="Boneco2" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(-30, 0, -30)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 2"
+strafe_distance = 3
+
+[node name="Boneco3" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(23, 1, -25)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 3"
+
+[node name="Boneco4" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(30, 0, -28)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 4"
+strafe_distance = 3
+
+[node name="Boneco5" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(0, 0, -8)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 5"
+strafe_distance = 4
+
+[node name="Boneco6" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(0, 0, -30)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 6"
+
+[node name="Boneco7" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(-31, 0, -6)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 7"
+
+[node name="Boneco8" parent="Bonecos" instance=ExtResource("2_dummy")]
+position = Vector3(31, 0, 10)
+rotation_degrees = Vector3(0, 180, 0)
+display_name = "Boneco 8"
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector3(0, 0, 46)
+
+[node name="TeamDeathmatch" type="Node" parent="." node_paths=PackedStringArray("spawns_azul", "spawns_vermelho")]
+script = ExtResource("5_tdm")
+spawns_azul = NodePath("../Spawns/Azul")
+spawns_vermelho = NodePath("../Spawns/Vermelho")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_hud")
+player_path = NodePath("../Player")
+match_path = NodePath("../TeamDeathmatch")
+
+[node name="PauseMenu" type="CanvasLayer" parent="."]
+script = ExtResource("6_menu")
