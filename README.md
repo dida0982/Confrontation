@@ -1,6 +1,6 @@
 # Confrontation
 
-Um jogo de tiro em primeira pessoa, tático, **5 contra 5**, inspirado no estilo de jogo do Valorant, mas **sem poderes, sem classes de personagem e sem granadas**. Só mira, posicionamento e trabalho em equipe.
+Um jogo de tiro em primeira pessoa, **multiplayer 5 contra 5**, inspirado no estilo de jogo do Valorant, mas **sem poderes, sem classes de personagem e sem granadas**. Só mira, posicionamento e trabalho em equipe, com **chat de voz por proximidade**.
 
 Todo o projeto é feito **somente com softwares gratuitos**.
 
@@ -8,10 +8,11 @@ Todo o projeto é feito **somente com softwares gratuitos**.
 
 ## 1. A ideia do jogo
 
-- Duas equipes de 5 jogadores: **Ataque** e **Defesa**.
+- Multiplayer online: duas equipes de **5 jogadores**, time **Azul** e time **Vermelho**.
 - Todos os personagens são iguais: mesmo modelo, mesma vida, mesma velocidade. Não existem agentes nem habilidades.
-- Cada jogador nasce com uma arma na mão e joga o round só com ela. Não tem granada, fumaça, flash nem nenhum outro utilitário.
-- A partida é dividida em rounds, como no Valorant (detalhes abaixo).
+- Todo jogador nasce com as mesmas 3 armas. Não tem granada, fumaça, flash nem nenhum outro utilitário.
+- **Chat de voz por proximidade:** você ouve a voz dos outros jogadores saindo do boneco deles. Quanto mais perto, mais alto; longe, ninguém ouve.
+- Modo atual: **mata-mata em equipe** (detalhes abaixo). O modo de plantar a bomba fica para o futuro.
 
 ## 2. Regras de combate
 
@@ -24,6 +25,9 @@ Todo o projeto é feito **somente com softwares gratuitos**.
 | Queda da bala (gravidade) | **Não existe**: a bala vai reto até onde você mirou |
 | Tempo de viagem da bala | **Não existe**: o acerto é instantâneo (técnica chamada *hitscan*) |
 | Escudo / colete | Não existe |
+| Recuo (*recoil*) | **Não existe**: a mira não sobe nem abre ao atirar sem parar |
+| Munição | **Infinita**: o pente tem tamanho normal e precisa recarregar, mas as balas nunca acabam |
+| Fogo amigo | Não existe: tiro em aliado não causa dano |
 
 ## 3. Armas
 
@@ -31,22 +35,26 @@ Só existem 3 armas. **Ninguém escolhe nem compra arma**: todo jogador já nasc
 
 | Tecla | Arma | Como funciona |
 |---|---|---|
-| 1 | **Fuzil** | Automático (segura o botão para atirar), pente de 25, tem recuo (*recoil*) quando atira muito seguido. |
+| 1 | **Fuzil** | Automático (segura o botão para atirar), pente de 25. |
 | 2 | **Pistola** | Semiautomática (um tiro por clique), pente de 12, boa precisão. |
 | 3 | **Sniper** | Um tiro a cada 1,5 s, pente de 5, mira com zoom no botão direito. Só é precisa com zoom e parada. |
 
-## 4. Formato da partida (igual ao Valorant)
+## 4. Formato da partida: mata-mata em equipe
 
-- **Objetivo do Ataque:** plantar a bomba (no Valorant chama "Spike") em um dos dois locais (**Bomb A** ou **Bomb B**) e proteger até explodir, **ou** eliminar todos os defensores.
-- **Objetivo da Defesa:** impedir a plantação, desarmar a bomba, **ou** eliminar todos os atacantes.
-- Cada round tem: fase de preparação (barreiras fechadas) → fase de combate → fim do round.
-- Quem morre fica de espectador até o próximo round (não renasce no meio do round).
-- **Troca de lado** depois de 12 rounds.
-- **Vence quem chegar a 13 rounds** primeiro.
+No estilo do mata-mata em equipe do Valorant:
+
+- Cada abate de um inimigo vale **1 ponto** para o time.
+- **Vence o time que chegar a 100 abates** primeiro, ou o que tiver mais abates quando o tempo de **9:30** acabar (pode dar empate).
+- Quem morre **renasce em 3 segundos** num ponto de nascimento do seu time, longe dos inimigos, com vida e pentes cheios.
+- Ao renascer, o jogador tem **2 segundos de proteção** (não leva dano). Atirar cancela a proteção.
+
+### No futuro: modo plantar a bomba
+
+Depois, vamos fazer o modo competitivo do Valorant: o Ataque planta a bomba no **Bomb A** ou **Bomb B** e a Defesa tenta impedir ou desarmar. Rounds sem renascimento, troca de lado após 12 rounds e vitória com 13.
 
 ## 5. O mapa
 
-- Um mapa no estilo dos mapas do Valorant: **dois locais de bomba (A e B)**, um **meio (mid)**, base de ataque e base de defesa com barreiras no início do round.
+- Um mapa no estilo dos mapas do Valorant: três rotas e um **meio (mid)**, com uma base para cada time. Já vamos deixar espaço para os locais de bomba (A e B) do modo futuro.
 - **Importante:** o mapa precisa ser **original**, feito por nós. Copiar exatamente um mapa do Valorant (geometria, texturas, nomes, modelos) é proibido por direitos autorais da Riot Games e poderia fazer o jogo ser derrubado se for publicado. A gente vai usar o **mesmo tipo de estrutura** (três rotas, dois bombs, mid), que é uma ideia de design de jogo e não pertence a ninguém, mas com desenho próprio.
 - Pelo mesmo motivo, não vamos usar nomes, logos, sons ou modelos do Valorant.
 
@@ -63,6 +71,7 @@ Só existem 3 armas. **Ninguém escolhe nem compra arma**: todo jogador já nasc
 | Controle de versão | **[Git](https://git-scm.com/)** + **[GitHub](https://github.com/)** (conta grátis) | Guarda o histórico do projeto e serve de backup. |
 | Recursos prontos grátis | [Kenney.nl](https://kenney.nl/), [Poly Haven](https://polyhaven.com/), [Freesound](https://freesound.org/), [Mixamo](https://www.mixamo.com/) | Modelos, texturas, sons e animações. Sempre conferir a licença de cada item. |
 | Multiplayer | Rede embutida do Godot (**ENet**) | Grátis. Para testar, roda tudo no próprio computador ou na rede de casa. |
+| Chat de voz | Captura de microfone do Godot (`AudioEffectCapture`) + addon gratuito com codec **Opus** | A voz toca num `AudioStreamPlayer3D` preso no boneco, então o volume cai com a distância. |
 
 **Por que Godot e não Unreal ou Unity?** O Godot é 100% gratuito para sempre, sem taxa nenhuma mesmo se o jogo der dinheiro, é leve (roda em computador simples) e é mais fácil para começar. Unreal cobra royalties depois de certo faturamento e Unity tem regras de licença que já mudaram várias vezes.
 
@@ -74,10 +83,11 @@ jogo de fps/
 ├── docs/            ← passo a passo do desenvolvimento
 │   ├── 00-roadmap.md                       ← todas as fases e o que já foi feito
 │   ├── 01-instalacao-das-ferramentas.md
-│   └── 02-jogador-armas-e-dano.md          ← o que foi feito por último
+│   ├── 02-jogador-armas-e-dano.md
+│   └── 03-mata-mata-em-equipe.md           ← o que foi feito por último
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)
     ├── scenes/      ← cenas (sala de treino, jogador, boneco de treino)
-    ├── scripts/     ← código (GDScript)
+    ├── scripts/     ← código (GDScript); scripts/match/ tem as regras da partida
     ├── weapons/     ← números de cada arma (fuzil, pistola, sniper)
     └── materials/   ← materiais (grade de 1 metro do greybox)
 ```

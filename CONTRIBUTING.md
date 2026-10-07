@@ -43,7 +43,7 @@ Usamos o padrão [Conventional Commits](https://www.conventionalcommits.org/pt-b
 
 ### Escopos usados no projeto
 
-`jogador`, `armas`, `combate`, `mapa`, `partida`, `rede`, `hud`, `menu`, `treino`, `projeto`
+`jogador`, `armas`, `combate`, `mapa`, `partida`, `rede`, `voz`, `hud`, `menu`, `treino`, `projeto`
 
 ### Exemplos
 

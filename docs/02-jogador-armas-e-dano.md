@@ -14,7 +14,7 @@
 | Tecla | Ação |
 |---|---|
 | W A S D | Andar |
-| Shift (segurar) | Andar silencioso (mais devagar e mais preciso) |
+| Shift (segurar) | Correr mais rápido |
 | Ctrl ou C (segurar) | Agachar |
 | Espaço | Pular |
 | Botão esquerdo | Atirar |
@@ -29,7 +29,7 @@
 - **Pistola (2):** dê 4 tiros no corpo de um boneco. Ele morre no 4º (a vida em cima dele cai 100 → 75 → 50 → 25 → 0).
 - **Qualquer arma na cabeça:** 1 tiro mata. O boneco pisca **amarelo**.
 - **Sniper (3):** com zoom (botão direito), 1 tiro em qualquer lugar mata. **Sem zoom ela erra muito**, igual no Valorant.
-- **Fuzil (1):** segure o botão. A mira sobe (recuo) e abre (imprecisão). Atire em rajadas curtas para acertar.
+- **Fuzil (1):** segure o botão. Não tem recuo: a mira fica parada enquanto você atira. As balas nunca acabam, só precisa recarregar o pente.
 - **Correndo** a mira abre muito. **Pare** (solte as teclas) **e atire**: a mira fecha na hora.
 - **Marcador de acerto (o "X" na mira):** branco = corpo, amarelo = cabeça, vermelho = matou.
 
@@ -63,7 +63,7 @@ jogo/
 ### Como o tiro funciona (resumo)
 
 1. Quando você atira, sai um **raio invisível** do centro da câmera, em linha reta. Ele acerta na hora (*hitscan*), por isso **a bala não cai**.
-2. O raio ganha um pequeno desvio aleatório conforme a **imprecisão** (correndo, pulando ou atirando sem parar).
+2. O raio ganha um pequeno desvio aleatório conforme a **imprecisão** (andando, correndo ou pulando). Parado, o tiro vai praticamente no centro da mira (só a sniper sem zoom erra muito).
 3. Se o raio bate numa **hitbox**, o jogo olha se é cabeça (`is_head`) ou corpo e tira a vida:
    - `head_damage` = 100 em todas as armas.
    - `body_damage` = 25 na pistola e no fuzil e 100 na sniper.
@@ -84,7 +84,7 @@ jogo/
 ### Mudar os números de uma arma
 1. No Godot, no painel **Sistema de Arquivos** (canto de baixo à esquerda), abra a pasta `weapons`.
 2. Dê dois cliques em `fuzil.tres`, `pistola.tres` ou `sniper.tres`.
-3. No **Inspetor** (direita), mude o que quiser: cadência (`Fire Interval`), pente, recarga, dano, imprecisão, recuo...
+3. No **Inspetor** (direita), mude o que quiser: cadência (`Fire Interval`), pente, recarga, dano, imprecisão...
 4. Aperte F5 para testar.
 
 ### Mudar velocidade do jogador ou sensibilidade do mouse
@@ -125,12 +125,6 @@ git push
 - [ ] A sensação de andar e mirar está boa (se não, ajuste os números da seção 3)
 - [x] Projeto publicado no GitHub
 
-## ➡️ Próximo passo: Fase 5, o mapa
+## ➡️ Próximo passo
 
-Antes de pedir o mapa, **desenhe no papel** (vista de cima) como você quer o mapa:
-- Onde nasce o **Ataque** e onde nasce a **Defesa**
-- Onde ficam o **Bomb A** e o **Bomb B**
-- Por onde passa o **meio (mid)**
-- Quais corredores ligam cada parte
-
-Pode ser bem simples, só quadrados e setas. Depois peça: *"vamos fazer a fase 5, o mapa"* e descreva (ou mande foto do desenho). Vai ser criado o arquivo `docs/03-mapa-greybox.md`.
+Depois desta etapa entraram o mata-mata em equipe, a munição infinita, a corrida no Shift e a remoção do recuo. Continue em [03-mata-mata-em-equipe.md](03-mata-mata-em-equipe.md).
