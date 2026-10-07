@@ -1,0 +1,139 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/training_dummy.tscn" id="2_dummy"]
+[ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_hud"]
+[ext_resource type="Shader" path="res://materials/grade.gdshader" id="4_grid"]
+
+[sub_resource type="ProceduralSkyMaterial" id="sky_material"]
+
+[sub_resource type="Sky" id="sky"]
+sky_material = SubResource("sky_material")
+
+[sub_resource type="Environment" id="environment"]
+background_mode = 2
+sky = SubResource("sky")
+tonemap_mode = 2
+
+[sub_resource type="ShaderMaterial" id="mat_floor"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.42, 0.43, 0.46, 1)
+shader_parameter/line_color = Color(0.3, 0.31, 0.34, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_wall"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.75, 0.74, 0.7, 1)
+shader_parameter/line_color = Color(0.6, 0.59, 0.56, 1)
+
+[sub_resource type="ShaderMaterial" id="mat_cover"]
+shader = ExtResource("4_grid")
+shader_parameter/base_color = Color(0.3, 0.55, 0.7, 1)
+shader_parameter/line_color = Color(0.22, 0.42, 0.55, 1)
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("environment")
+
+[node name="Sun" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, 35, 0)
+shadow_enabled = true
+
+[node name="Map" type="Node3D" parent="."]
+
+[node name="Floor" type="CSGBox3D" parent="Map"]
+position = Vector3(0, -0.5, -20)
+use_collision = true
+size = Vector3(30, 1, 70)
+material = SubResource("mat_floor")
+
+[node name="WallLeft" type="CSGBox3D" parent="Map"]
+position = Vector3(-15.5, 3, -20)
+use_collision = true
+size = Vector3(1, 6, 70)
+material = SubResource("mat_wall")
+
+[node name="WallRight" type="CSGBox3D" parent="Map"]
+position = Vector3(15.5, 3, -20)
+use_collision = true
+size = Vector3(1, 6, 70)
+material = SubResource("mat_wall")
+
+[node name="WallBack" type="CSGBox3D" parent="Map"]
+position = Vector3(0, 3, 15.5)
+use_collision = true
+size = Vector3(32, 6, 1)
+material = SubResource("mat_wall")
+
+[node name="WallFront" type="CSGBox3D" parent="Map"]
+position = Vector3(0, 3, -55.5)
+use_collision = true
+size = Vector3(32, 6, 1)
+material = SubResource("mat_wall")
+
+[node name="LowCover" type="CSGBox3D" parent="Map"]
+position = Vector3(-6, 0.5, -2)
+use_collision = true
+size = Vector3(2, 1, 1)
+material = SubResource("mat_cover")
+
+[node name="BoxBig" type="CSGBox3D" parent="Map"]
+position = Vector3(6, 1, -4)
+use_collision = true
+size = Vector3(2, 2, 2)
+material = SubResource("mat_cover")
+
+[node name="WallSegment" type="CSGBox3D" parent="Map"]
+position = Vector3(-8, 1.5, -20)
+use_collision = true
+size = Vector3(6, 3, 0.5)
+material = SubResource("mat_cover")
+
+[node name="BoxMid" type="CSGBox3D" parent="Map"]
+position = Vector3(4, 0.75, -28)
+use_collision = true
+size = Vector3(1.5, 1.5, 1.5)
+material = SubResource("mat_cover")
+
+[node name="Platform" type="CSGBox3D" parent="Map"]
+position = Vector3(-10, 1, -42)
+use_collision = true
+size = Vector3(8, 2, 6)
+material = SubResource("mat_wall")
+
+[node name="Ramp" type="CSGBox3D" parent="Map"]
+position = Vector3(-10, 0.84, -36.17)
+rotation_degrees = Vector3(19.5, 0, 0)
+use_collision = true
+size = Vector3(4, 0.3, 6)
+material = SubResource("mat_wall")
+
+[node name="Dummies" type="Node3D" parent="."]
+
+[node name="Dummy1" parent="Dummies" instance=ExtResource("2_dummy")]
+position = Vector3(0, 0, -5)
+
+[node name="Dummy2" parent="Dummies" instance=ExtResource("2_dummy")]
+position = Vector3(-4, 0, -15)
+
+[node name="DummyStrafe1" parent="Dummies" instance=ExtResource("2_dummy")]
+position = Vector3(5, 0, -20)
+strafe_distance = 3.0
+
+[node name="Dummy3" parent="Dummies" instance=ExtResource("2_dummy")]
+position = Vector3(0, 0, -35)
+
+[node name="DummyPlatform" parent="Dummies" instance=ExtResource("2_dummy")]
+position = Vector3(-10, 2, -43)
+
+[node name="DummyStrafe2" parent="Dummies" instance=ExtResource("2_dummy")]
+position = Vector3(8, 0, -48)
+strafe_distance = 4.0
+strafe_speed = 4.0
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+position = Vector3(0, 0, 10)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("3_hud")
+player_path = NodePath("../Player")
