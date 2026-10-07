@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/weapon_data.gd" id="1_wd"]
+
+[resource]
+script = ExtResource("1_wd")
+display_name = "Sniper"
+automatic = false
+fire_interval = 1.5
+magazine_size = 5
+reserve_ammo = 10
+reload_time = 3.7
+equip_time = 1.2
+head_damage = 100
+body_damage = 100
+base_spread = 5.0
+move_spread = 6.0
+air_spread = 10.0
+recoil_kick = 3.0
+max_recoil = 3.0
+has_scope = true
+scope_fov = 40.0
+scoped_spread = 0.0
+move_speed_multiplier = 0.85
+scoped_speed_multiplier = 0.5

@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="WeaponData" format=3]
+
+[ext_resource type="Script" path="res://scripts/weapons/weapon_data.gd" id="1_wd"]
+
+[resource]
+script = ExtResource("1_wd")
+display_name = "Pistola"
+automatic = false
+fire_interval = 0.15
+magazine_size = 12
+reserve_ammo = 36
+reload_time = 1.75
+equip_time = 0.5
+head_damage = 100
+body_damage = 25
+base_spread = 0.4
+move_spread = 1.5
+air_spread = 5.0
+spray_spread_per_shot = 0.4
+max_spray_spread = 2.0
+spray_reset_time = 0.3
+recoil_kick = 1.0
+max_recoil = 4.0
+move_speed_multiplier = 1.0
