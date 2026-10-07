@@ -18,6 +18,7 @@ const TECLAS := {
 	"toggle_fullscreen": [KEY_F11],
 	"debug_kill": [KEY_F8],
 	"restart_match": [KEY_ENTER, KEY_KP_ENTER],
+	"scoreboard": [KEY_TAB],
 }
 
 const BOTOES_MOUSE := {

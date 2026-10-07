@@ -12,6 +12,8 @@ extends Node
 ## (o jogador). Os bonecos de treino renascem sozinhos.
 
 signal kill_registered(killer: Node, victim: Node, headshot: bool)
+## Abates ou mortes de alguém mudaram (o placar do Tab usa isso).
+signal stats_changed
 ## winner é um Team.Id, ou -1 para empate.
 signal match_ended(winner: int)
 
@@ -33,6 +35,8 @@ var winner := -1
 
 ## Quem está esperando para renascer -> segundos que faltam.
 var _respawn_timers := {}
+## Combatente -> {"kills": int, "deaths": int}
+var _stats := {}
 
 
 func _ready() -> void:
@@ -44,6 +48,7 @@ func _start() -> void:
 	for combatant in get_tree().get_nodes_in_group("combatants"):
 		var health := _health_of(combatant)
 		health.died.connect(_on_died.bind(combatant))
+		_stats[combatant] = {"kills": 0, "deaths": 0}
 		if combatant.has_method("respawn"):
 			combatant.respawn(_pick_spawn(health.team), spawn_protection)
 
@@ -70,6 +75,27 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_tree().reload_current_scene()
 
 
+## Abates e mortes de um combatente: {"kills": int, "deaths": int}.
+func stats_of(combatant: Node) -> Dictionary:
+	return _stats.get(combatant, {"kills": 0, "deaths": 0})
+
+
+## Todos os combatentes de um time, do melhor para o pior (mais abates, menos mortes).
+func ranking(team: Team.Id) -> Array[Node]:
+	var members: Array[Node] = []
+	for combatant in _stats:
+		if is_instance_valid(combatant) and team_of(combatant) == team:
+			members.append(combatant)
+	members.sort_custom(func(a: Node, b: Node) -> bool:
+		var stats_a := stats_of(a)
+		var stats_b := stats_of(b)
+		if stats_a["kills"] != stats_b["kills"]:
+			return stats_a["kills"] > stats_b["kills"]
+		return stats_a["deaths"] < stats_b["deaths"]
+	)
+	return members
+
+
 ## Segundos até renascer (0 se não estiver esperando).
 func respawn_time_left(combatant: Node) -> float:
 	return _respawn_timers.get(combatant, 0.0)
@@ -80,8 +106,11 @@ func _on_died(killer: Node, headshot: bool, victim: Node) -> void:
 		return
 
 	var victim_team := _health_of(victim).team
+	stats_of(victim)["deaths"] += 1
 	if killer != null and killer != victim and _health_of(killer).team != victim_team:
 		scores[_health_of(killer).team] += 1
+		stats_of(killer)["kills"] += 1
+	stats_changed.emit()
 
 	kill_registered.emit(killer, victim, headshot)
 

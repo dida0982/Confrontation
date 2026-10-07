@@ -113,22 +113,28 @@ material = SubResource("mat_wall")
 [node name="Dummies" type="Node3D" parent="."]
 
 [node name="Dummy1" parent="Dummies" instance=ExtResource("2_dummy")]
+display_name = "Boneco 1"
 position = Vector3(0, 0, -5)
 
 [node name="Dummy2" parent="Dummies" instance=ExtResource("2_dummy")]
+display_name = "Boneco 2"
 position = Vector3(-4, 0, -15)
 
 [node name="DummyStrafe1" parent="Dummies" instance=ExtResource("2_dummy")]
+display_name = "Boneco 3"
 position = Vector3(5, 0, -20)
 strafe_distance = 3.0
 
 [node name="Dummy3" parent="Dummies" instance=ExtResource("2_dummy")]
+display_name = "Boneco 4"
 position = Vector3(0, 0, -35)
 
 [node name="DummyPlatform" parent="Dummies" instance=ExtResource("2_dummy")]
+display_name = "Boneco 5"
 position = Vector3(-10, 2, -43)
 
 [node name="DummyStrafe2" parent="Dummies" instance=ExtResource("2_dummy")]
+display_name = "Boneco 6"
 position = Vector3(8, 0, -48)
 strafe_distance = 4.0
 strafe_speed = 4.0

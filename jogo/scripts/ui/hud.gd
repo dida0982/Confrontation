@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## Interface na tela: mira, vida, munição, arma atual, marcador de acerto, luneta da sniper,
-## placar e tempo da partida, feed de abates, tela de morte e tela de fim de partida.
+## placar e tempo da partida, feed de abates, tela de morte, tela de fim de partida
+## e o placar de abates (segurando Tab).
 ## Tudo é criado por código aqui para ficar fácil de ajustar.
 
 const HIT_MARKER_TIME := 0.15
@@ -32,6 +33,7 @@ var _death_label: Label
 var _end_title: Label
 var _end_subtitle: Label
 var _killfeed: RichTextLabel
+var _scoreboard: Scoreboard
 ## Cada item: {"text": String, "time": float}
 var _killfeed_entries: Array[Dictionary] = []
 var _hit_marker_timer := 0.0
@@ -86,6 +88,10 @@ func _ready() -> void:
 	_end_subtitle = _new_label(28)
 	_end_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
+	_scoreboard = Scoreboard.new(match_mode, player)
+	_scoreboard.visible = false
+	_root.add_child(_scoreboard)
+
 	_health_label = _new_label(40)
 	_ammo_label = _new_label(40)
 	_weapon_label = _new_label(24)
@@ -103,11 +109,12 @@ func _process(delta: float) -> void:
 		_ammo_label.text = "RECARREGANDO..."
 	else:
 		_ammo_label.text = "%d / ∞" % weapons.ammo_in_magazine()
-	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  F11 tela cheia  |  F8 morrer (teste)" % Engine.get_frames_per_second()
+	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  Tab placar  |  F11 tela cheia  |  F8 morrer (teste)" % Engine.get_frames_per_second()
 	_center_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not _is_menu_open()
 
 	_update_match_info()
 	_update_killfeed(delta)
+	_scoreboard.visible = Input.is_action_pressed("scoreboard") and not _is_menu_open()
 
 	_layout()
 	_crosshair.queue_redraw()
@@ -132,6 +139,8 @@ func _layout() -> void:
 	_score_vermelho.position = Vector2(_timer_label.position.x + _timer_label.size.x + 24.0, margin - 4.0)
 
 	_killfeed.position = Vector2(screen.x - KILLFEED_WIDTH - margin, margin)
+	_scoreboard.reset_size()
+	_scoreboard.position = Vector2((screen.x - _scoreboard.size.x) / 2.0, 80.0)
 	_protection_label.position = Vector2((screen.x - _protection_label.size.x) / 2.0, screen.y / 2.0 + 40.0)
 	_death_label.position = Vector2((screen.x - _death_label.size.x) / 2.0, screen.y * 0.3)
 	_end_title.position = Vector2((screen.x - _end_title.size.x) / 2.0, screen.y * 0.3)
