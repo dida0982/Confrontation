@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" path="res://scenes/training_dummy.tscn" id="2_dummy"]
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_hud"]
 [ext_resource type="Shader" path="res://materials/grade.gdshader" id="4_grid"]
+[ext_resource type="Script" path="res://scripts/match/team_deathmatch.gd" id="5_tdm"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_material"]
 
@@ -131,9 +132,42 @@ position = Vector3(8, 0, -48)
 strafe_distance = 4.0
 strafe_speed = 4.0
 
+[node name="Spawns" type="Node3D" parent="."]
+
+[node name="Azul" type="Node3D" parent="Spawns"]
+
+[node name="Spawn1" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(-6, 0, 12)
+
+[node name="Spawn2" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(0, 0, 12)
+
+[node name="Spawn3" type="Marker3D" parent="Spawns/Azul"]
+position = Vector3(6, 0, 12)
+
+[node name="Vermelho" type="Node3D" parent="Spawns"]
+
+[node name="Spawn1" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(-6, 0, -52)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Spawn2" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(0, 0, -52)
+rotation_degrees = Vector3(0, 180, 0)
+
+[node name="Spawn3" type="Marker3D" parent="Spawns/Vermelho"]
+position = Vector3(6, 0, -52)
+rotation_degrees = Vector3(0, 180, 0)
+
 [node name="Player" parent="." instance=ExtResource("1_player")]
 position = Vector3(0, 0, 10)
+
+[node name="TeamDeathmatch" type="Node" parent="." node_paths=PackedStringArray("spawns_azul", "spawns_vermelho")]
+script = ExtResource("5_tdm")
+spawns_azul = NodePath("../Spawns/Azul")
+spawns_vermelho = NodePath("../Spawns/Vermelho")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("3_hud")
 player_path = NodePath("../Player")
+match_path = NodePath("../TeamDeathmatch")
