@@ -35,7 +35,7 @@ Aperte **F5**. Na sala de treino, você é do time **Azul** e os bonecos são do
 - **F8 (só para teste):** mata você na hora. Aparece a tela vermelha "VOCÊ MORREU – Renascendo em 3.0". Você renasce num ponto do fundo da sala com o aviso "PROTEÇÃO DE NASCIMENTO".
 - **Fim da partida:** para testar rápido, mude `Kills To Win` para 5 no nó TeamDeathmatch. Ao chegar em 5 aparece **VITÓRIA** e o placar. **Enter** começa de novo.
 - **Munição:** atire o pente inteiro. Ele recarrega sozinho e o contador mostra `25 / ∞`.
-- **Shift:** segure andando para frente. Você fica bem mais rápido, mas a mira abre (correr atrapalha a precisão).
+- **Shift:** segure andando para frente. Você fica bem mais rápido.
 
 ## 3. Como o código está organizado
 
@@ -68,13 +68,17 @@ Isso já está pronto para o multiplayer: cada jogador novo só precisa estar no
 - [ ] Armas sem recuo e com munição infinita
 - [ ] Shift corre mais rápido
 
-## ➡️ Próximo passo: Fase 6, o mapa
+## ➡️ Próximo passo
+
+Depois desta etapa entraram o deslize, o menu da mira e o placar no Tab: veja [04-deslize-menu-e-placar.md](04-deslize-menu-e-placar.md).
+
+### Fase 6, o mapa
 
 O mapa do mata-mata precisa de:
 - uma **base para cada time** (com vários pontos de nascimento),
 - **três rotas** ligando as bases e um **meio (mid)**,
 - espaço reservado para **Bomb A** e **Bomb B**, para usar no modo futuro.
 
-Desenhe no papel, visto de cima, só com quadrados e setas, e peça: *"vamos fazer a fase 6, o mapa"*. Pode descrever ou mandar foto do desenho. Vai ser criado o arquivo `docs/04-mapa-greybox.md`.
+Desenhe no papel, visto de cima, só com quadrados e setas, e peça: *"vamos fazer a fase 6, o mapa"*. Pode descrever ou mandar foto do desenho. Vai ser criado o arquivo `docs/05-mapa-greybox.md`.
 
 Depois do mapa vem o **multiplayer 5v5** (Fase 7) e o **chat de voz por proximidade** (Fase 8).

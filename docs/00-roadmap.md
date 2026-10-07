@@ -9,8 +9,8 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 5 (projeto, jogador, armas, dano e regras do mata-mata em equipe)
-**Agora:** testar na sala de treino seguindo [03-mata-mata-em-equipe.md](03-mata-mata-em-equipe.md)
+**Feito:** Fases 0 a 5 (projeto, jogador, armas, dano e regras do mata-mata em equipe), mais deslize, menu da mira e placar no Tab
+**Agora:** testar na sala de treino seguindo [04-deslize-menu-e-placar.md](04-deslize-menu-e-placar.md)
 **Próximo passo:** Fase 6, o mapa (greybox)
 
 ---
@@ -34,16 +34,17 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - [x] Câmera em primeira pessoa com o mouse
 - [x] Andar (WASD), correr mais rápido (Shift), agachar (Ctrl ou C), pular (Espaço)
 - [x] Freada rápida ao soltar a tecla (para parar e atirar, como no Valorant)
+- [x] **Deslize** com Ctrl em alta velocidade (correndo ou depois de pular correndo)
 - [x] Sala de treino com grade de 1 metro, caixas, parede e plataforma com rampa
 
 ### Fase 3: Armas e tiro ✅
 
 - [x] Tiro instantâneo em linha reta (*hitscan*), **sem queda de bala**
 - [x] As 3 armas: fuzil (1), pistola (2), sniper (3), com pente, recarga (R) e tempo de sacar
-- [x] **Sem recuo**. A imprecisão só aumenta andando e pulando
+- [x] **Sem recuo** e **sem perda de precisão** andando, correndo, pulando ou deslizando
 - [x] **Munição infinita** (pente e recarga normais)
 - [x] Zoom da sniper (botão direito)
-- [x] Marcas de bala nas paredes e mira que abre conforme a imprecisão
+- [x] Marcas de bala nas paredes
 
 ### Fase 4: Vida e dano ✅
 
@@ -87,9 +88,11 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ### Fase 9: Interface (menus)
 
-- [ ] Menu principal, configurações (sensibilidade, volume, resolução, microfone)
-- [ ] Tabela de jogadores (abates, mortes) segurando Tab
-- [ ] Mira personalizável
+- [x] Menu no Esc: continuar, mira e sair
+- [x] Sensibilidade (mesma escala do Valorant) e tipo de mira (ponto ou cruz), salvos no computador
+- [x] Placar de abates e mortes segurando Tab
+- [ ] Menu principal (tela inicial), criar/entrar em partida
+- [ ] Mais configurações: volume, resolução, microfone, cor e tamanho da mira
 
 ### Fase 10: Arte e som
 
@@ -127,6 +130,11 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 | Recuo das armas | Não tem |
 | Munição | Infinita (pente e recarga normais) |
 | Shift | Corre mais rápido |
+| Ctrl correndo | Desliza |
+| Precisão em movimento | Igual a parado (andar/correr/pular não desvia o tiro) |
+| Tipos de mira | Ponto e cruz |
+| Esc | Abre o menu (o jogo não pausa) |
+| Tab | Mostra o placar de abates |
 | Multiplayer | 5 contra 5 online |
 | Comunicação | Chat de voz por proximidade |
 

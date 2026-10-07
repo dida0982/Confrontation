@@ -21,7 +21,7 @@
 | Botão direito | Zoom da sniper |
 | R | Recarregar |
 | 1 / 2 / 3 ou rodinha do mouse | Fuzil / Pistola / Sniper |
-| Esc | Soltar o mouse (clique na tela para voltar) |
+| Esc | Menu (continuar, mira e sensibilidade, sair) |
 | F11 | Tela cheia |
 
 ### O que testar
@@ -30,7 +30,6 @@
 - **Qualquer arma na cabeça:** 1 tiro mata. O boneco pisca **amarelo**.
 - **Sniper (3):** com zoom (botão direito), 1 tiro em qualquer lugar mata. **Sem zoom ela erra muito**, igual no Valorant.
 - **Fuzil (1):** segure o botão. Não tem recuo: a mira fica parada enquanto você atira. As balas nunca acabam, só precisa recarregar o pente.
-- **Correndo** a mira abre muito. **Pare** (solte as teclas) **e atire**: a mira fecha na hora.
 - **Marcador de acerto (o "X" na mira):** branco = corpo, amarelo = cabeça, vermelho = matou.
 
 ---
@@ -63,7 +62,7 @@ jogo/
 ### Como o tiro funciona (resumo)
 
 1. Quando você atira, sai um **raio invisível** do centro da câmera, em linha reta. Ele acerta na hora (*hitscan*), por isso **a bala não cai**.
-2. O raio ganha um pequeno desvio aleatório conforme a **imprecisão** (andando, correndo ou pulando). Parado, o tiro vai praticamente no centro da mira (só a sniper sem zoom erra muito).
+2. O raio ganha um desvio aleatório bem pequeno (a **imprecisão** da arma). Ela é a mesma parado ou em movimento. Só a sniper sem zoom erra muito.
 3. Se o raio bate numa **hitbox**, o jogo olha se é cabeça (`is_head`) ou corpo e tira a vida:
    - `head_damage` = 100 em todas as armas.
    - `body_damage` = 25 na pistola e no fuzil e 100 na sniper.
@@ -87,7 +86,7 @@ jogo/
 3. No **Inspetor** (direita), mude o que quiser: cadência (`Fire Interval`), pente, recarga, dano, imprecisão...
 4. Aperte F5 para testar.
 
-### Mudar velocidade do jogador ou sensibilidade do mouse
+### Mudar velocidade do jogador
 1. Abra `scenes/player.tscn`.
 2. Clique no nó **Player**.
 3. No Inspetor: `Run Speed`, `Walk Speed`, `Jump Velocity`, `Mouse Sensitivity`...

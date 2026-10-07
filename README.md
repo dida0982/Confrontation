@@ -26,6 +26,7 @@ Todo o projeto é feito **somente com softwares gratuitos**.
 | Tempo de viagem da bala | **Não existe**: o acerto é instantâneo (técnica chamada *hitscan*) |
 | Escudo / colete | Não existe |
 | Recuo (*recoil*) | **Não existe**: a mira não sobe nem abre ao atirar sem parar |
+| Precisão em movimento | **Igual a parado**: andar, correr, pular ou deslizar não desvia o tiro |
 | Munição | **Infinita**: o pente tem tamanho normal e precisa recarregar, mas as balas nunca acabam |
 | Fogo amigo | Não existe: tiro em aliado não causa dano |
 
@@ -37,7 +38,11 @@ Só existem 3 armas. **Ninguém escolhe nem compra arma**: todo jogador já nasc
 |---|---|---|
 | 1 | **Fuzil** | Automático (segura o botão para atirar), pente de 25. |
 | 2 | **Pistola** | Semiautomática (um tiro por clique), pente de 12, boa precisão. |
-| 3 | **Sniper** | Um tiro a cada 1,5 s, pente de 5, mira com zoom no botão direito. Só é precisa com zoom e parada. |
+| 3 | **Sniper** | Um tiro a cada 1,5 s, pente de 5, mira com zoom no botão direito. Só é precisa com zoom. |
+
+## Movimento
+
+Jogo de tiro **dinâmico**: correr com **Shift**, pular e **deslizar** (Ctrl em velocidade alta, como no Fortnite e no Call of Duty). Pular no meio do deslize mantém o embalo.
 
 ## 4. Formato da partida: mata-mata em equipe
 
@@ -84,7 +89,8 @@ jogo de fps/
 │   ├── 00-roadmap.md                       ← todas as fases e o que já foi feito
 │   ├── 01-instalacao-das-ferramentas.md
 │   ├── 02-jogador-armas-e-dano.md
-│   └── 03-mata-mata-em-equipe.md           ← o que foi feito por último
+│   ├── 03-mata-mata-em-equipe.md
+│   └── 04-deslize-menu-e-placar.md         ← o que foi feito por último
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)
     ├── scenes/      ← cenas (sala de treino, jogador, boneco de treino)
     ├── scripts/     ← código (GDScript); scripts/match/ tem as regras da partida
