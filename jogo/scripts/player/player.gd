@@ -1,6 +1,6 @@
 class_name Player
 extends CharacterBody3D
-## Jogador em primeira pessoa: câmera no mouse, andar, correr, andar silencioso,
+## Jogador em primeira pessoa: câmera no mouse, andar, correr (Shift),
 ## agachar e pular. As armas ficam no nó WeaponManager (filho da câmera).
 
 const STAND_HEIGHT := 1.8
@@ -10,9 +10,10 @@ const BODY_HITBOX_STAND := 1.44
 const BODY_HITBOX_CROUCH := 0.95
 
 @export_group("Movimento (metros por segundo)")
+## Velocidade normal (só com WASD).
 @export var run_speed := 5.5
-## Velocidade segurando Shift (andar silencioso).
-@export var walk_speed := 3.0
+## Velocidade segurando Shift (correr mais rápido).
+@export var sprint_speed := 7.5
 @export var crouch_speed := 2.0
 @export var ground_accel := 50.0
 ## Frear rápido ao soltar a tecla, como no Valorant (ajuda a parar e atirar).
@@ -105,8 +106,8 @@ func _max_speed() -> float:
 	var speed := run_speed
 	if is_crouching:
 		speed = crouch_speed
-	elif Input.is_action_pressed("walk"):
-		speed = walk_speed
+	elif Input.is_action_pressed("sprint"):
+		speed = sprint_speed
 	return speed * weapons.get_speed_multiplier()
 
 

@@ -10,7 +10,7 @@ const TECLAS := {
 	"move_right": [KEY_D],
 	"jump": [KEY_SPACE],
 	"crouch": [KEY_CTRL, KEY_C],
-	"walk": [KEY_SHIFT],
+	"sprint": [KEY_SHIFT],
 	"reload": [KEY_R],
 	"weapon_1": [KEY_1],
 	"weapon_2": [KEY_2],
