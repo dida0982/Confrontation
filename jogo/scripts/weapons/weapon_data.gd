@@ -20,12 +20,9 @@ extends Resource
 @export var body_damage := 25
 
 @export_group("Precisão (em graus)")
-## Imprecisão parado. 0 = tiro perfeito no centro da mira.
+## Imprecisão da arma. 0 = tiro perfeito no centro da mira.
+## É a mesma parado, andando, correndo ou pulando.
 @export var base_spread := 0.3
-## Imprecisão extra correndo (andando com Shift é bem menos).
-@export var move_spread := 3.0
-## Imprecisão extra no ar (pulando).
-@export var air_spread := 6.0
 
 @export_group("Mira com zoom")
 @export var has_scope := false

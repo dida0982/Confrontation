@@ -104,16 +104,11 @@ func get_speed_multiplier() -> float:
 	return weapon.move_speed_multiplier * (weapon.scoped_speed_multiplier if is_scoped else 1.0)
 
 
-## Imprecisão atual em graus (parado, andando, pulando).
+## Imprecisão atual em graus. Não muda com o movimento: andar, correr,
+## pular ou deslizar não atrapalham o tiro. Só a sniper sem zoom é imprecisa.
 func current_spread_deg() -> float:
 	var weapon := current()
-	var spread := weapon.scoped_spread if is_scoped else weapon.base_spread
-	var speed := Vector2(player.velocity.x, player.velocity.z).length()
-	var move_ratio := clampf((speed - 1.0) / (player.run_speed - 1.0), 0.0, 1.0)
-	spread += weapon.move_spread * move_ratio
-	if not player.is_on_floor():
-		spread += weapon.air_spread
-	return spread
+	return weapon.scoped_spread if is_scoped else weapon.base_spread
 
 
 func set_scoped(value: bool) -> void:
