@@ -1,0 +1,13 @@
+# Normaliza finais de linha (recomendação do Godot)
+* text=auto eol=lf
+
+# Arquivos binários
+*.png binary
+*.jpg binary
+*.glb binary
+*.blend binary
+*.wav binary
+*.ogg binary
+*.mp3 binary
+*.ttf binary
+*.otf binary

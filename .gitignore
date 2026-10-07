@@ -1,0 +1,8 @@
+# Cache do Godot (é recriado automaticamente)
+.godot/
+jogo/.godot/
+
+# Executáveis exportados
+builds/
+*.exe
+*.pck
