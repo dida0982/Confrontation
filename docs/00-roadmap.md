@@ -9,9 +9,9 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 5 (projeto, jogador, armas, dano e regras do mata-mata em equipe), mais deslize, menu da mira e placar no Tab
-**Agora:** testar na sala de treino seguindo [04-deslize-menu-e-placar.md](04-deslize-menu-e-placar.md)
-**Próximo passo:** Fase 6, o mapa (greybox)
+**Feito:** Fases 0 a 6 (projeto, jogador, armas, dano, mata-mata em equipe e o primeiro mapa, o **Porto**), mais deslize, menu da mira e placar no Tab
+**Agora:** testar o mapa seguindo [05-mapa-porto.md](05-mapa-porto.md)
+**Próximo passo:** Fase 7, multiplayer 5v5
 
 ---
 
@@ -62,15 +62,17 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - [x] Feed de abates, tela de morte e tela de vitória/derrota (Enter reinicia)
 - Arquivo: [03-mata-mata-em-equipe.md](03-mata-mata-em-equipe.md)
 
-### Fase 6: Mapa (greybox) ⬅️ PRÓXIMA
+### Fase 6: Mapa (greybox) ✅
 
-- [ ] Desenhar o mapa no papel (vista de cima): base do Azul, base do Vermelho, três rotas, meio (mid)
-- [ ] Deixar espaço para Bomb A e Bomb B (modo futuro)
-- [ ] Montar o mapa com blocos simples no Godot
-- [ ] Pontos de nascimento espalhados nas bases dos dois times
-- [ ] Testar tempos de caminhada (cada rota deve demorar parecido)
+- [x] Pesquisa de como a Riot desenha os mapas do Valorant
+- [x] Mapa **Porto**: base Azul ao sul, base Vermelha ao norte, três rotas e o meio
+- [x] Bomb A e Bomb B prontos para o modo futuro
+- [x] Pontos de nascimento nas bases e nomes das áreas no chão
+- [x] Tempos de caminhada parecidos para os dois times até o meio
+- Arquivo: [05-mapa-porto.md](05-mapa-porto.md)
+- [ ] (Depois) Mais mapas
 
-### Fase 7: Multiplayer 5v5
+### Fase 7: Multiplayer 5v5 ⬅️ PRÓXIMA
 
 - [ ] Criar e entrar em partida (host / cliente) na rede local
 - [ ] Sincronizar movimento, tiros, mortes e placar
@@ -123,6 +125,7 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 |---|---|
 | Nome do jogo | **Confrontation** |
 | Modo de jogo atual | Mata-mata em equipe (plantar bomba fica para o futuro) |
+| Mapas | Originais, com a mesma estrutura dos mapas do Valorant (não copiamos mapas da Riot) |
 | Jogador escolhe ou compra arma? | **Não.** Todos nascem com fuzil, pistola e sniper |
 | Pode pegar arma do chão? | Não |
 | Dano da sniper | 1 tiro em qualquer parte do corpo mata |

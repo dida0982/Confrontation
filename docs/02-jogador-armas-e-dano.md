@@ -40,7 +40,7 @@
 jogo/
 ├── project.godot                 ← configuração do projeto
 ├── scenes/
-│   ├── main.tscn                 ← sala de treino (a cena que abre com F5)
+│   ├── sala_de_treino.tscn       ← sala de treino
 │   ├── player.tscn               ← o jogador
 │   └── training_dummy.tscn       ← boneco de treino
 ├── scripts/
@@ -92,7 +92,7 @@ jogo/
 3. No Inspetor: `Run Speed`, `Walk Speed`, `Jump Velocity`, `Mouse Sensitivity`...
 
 ### Mudar a sala de treino ou colocar mais bonecos
-1. Abra `scenes/main.tscn`.
+1. Abra `scenes/sala_de_treino.tscn`.
 2. Para mover uma caixa: clique nela em `Map` e arraste as setas coloridas.
 3. Para criar mais bonecos: clique com o botão direito num boneco dentro de `Dummies` → **Duplicar** (Ctrl+D). No Inspetor, `Strafe Distance` maior que 0 faz ele andar de um lado para o outro.
 

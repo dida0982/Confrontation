@@ -24,7 +24,7 @@
 | Fogo amigo | Não existe | |
 | Ao renascer | Vida 100, todos os pentes cheios, volta para o fuzil | |
 
-Os valores com nome na coluna "Onde mudar" ficam no nó **TeamDeathmatch** da cena `scenes/main.tscn`. Clique nele e mude no Inspetor.
+Os valores com nome na coluna "Onde mudar" ficam no nó **TeamDeathmatch** da cena do mapa (`scenes/mapas/porto.tscn`) ou da sala de treino (`scenes/sala_de_treino.tscn`). Clique nele e mude no Inspetor.
 
 ## 2. Como testar
 

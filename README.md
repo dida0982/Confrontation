@@ -59,7 +59,8 @@ Depois, vamos fazer o modo competitivo do Valorant: o Ataque planta a bomba no *
 
 ## 5. O mapa
 
-- Um mapa no estilo dos mapas do Valorant: três rotas e um **meio (mid)**, com uma base para cada time. Já vamos deixar espaço para os locais de bomba (A e B) do modo futuro.
+- Mapas no estilo dos mapas do Valorant: três rotas e um **meio (mid)**, com uma base para cada time e os locais de bomba (A e B) do modo futuro.
+- **Primeiro mapa: Porto** ([planta e detalhes](docs/05-mapa-porto.md)).
 - **Importante:** o mapa precisa ser **original**, feito por nós. Copiar exatamente um mapa do Valorant (geometria, texturas, nomes, modelos) é proibido por direitos autorais da Riot Games e poderia fazer o jogo ser derrubado se for publicado. A gente vai usar o **mesmo tipo de estrutura** (três rotas, dois bombs, mid), que é uma ideia de design de jogo e não pertence a ninguém, mas com desenho próprio.
 - Pelo mesmo motivo, não vamos usar nomes, logos, sons ou modelos do Valorant.
 
@@ -90,9 +91,11 @@ jogo de fps/
 │   ├── 01-instalacao-das-ferramentas.md
 │   ├── 02-jogador-armas-e-dano.md
 │   ├── 03-mata-mata-em-equipe.md
-│   └── 04-deslize-menu-e-placar.md         ← o que foi feito por último
+│   ├── 04-deslize-menu-e-placar.md
+│   ├── 05-mapa-porto.md                    ← o que foi feito por último
+│   └── img/                                ← planta e fotos dos mapas
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)
-    ├── scenes/      ← cenas (sala de treino, jogador, boneco de treino)
+    ├── scenes/      ← cenas (mapas/, sala de treino, jogador, boneco de treino)
     ├── scripts/     ← código (GDScript); scripts/match/ tem as regras da partida
     ├── weapons/     ← números de cada arma (fuzil, pistola, sniper)
     └── materials/   ← materiais (grade de 1 metro do greybox)

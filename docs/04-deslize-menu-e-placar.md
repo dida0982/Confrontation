@@ -97,6 +97,6 @@ Na sala de treino aparecem você (Azul) e os 6 bonecos (Vermelho). No multiplaye
 - [ ] Esc abre o menu; consigo mudar a sensibilidade e a mira; ao reabrir o jogo, continua salvo
 - [ ] Tab mostra o placar com abates e mortes
 
-## ➡️ Próximo passo: Fase 6, o mapa
+## ➡️ Próximo passo
 
-Desenhe o mapa no papel (base de cada time, três rotas, meio e espaço para Bomb A e B) e peça: *"vamos fazer a fase 6, o mapa"*. Vai ser criado o arquivo `docs/05-mapa-greybox.md`.
+O mapa foi feito: veja [05-mapa-porto.md](05-mapa-porto.md).
