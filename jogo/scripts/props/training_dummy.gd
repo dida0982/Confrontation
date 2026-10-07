@@ -1,7 +1,10 @@
 extends StaticBody3D
 ## Boneco de treino: leva tiro, mostra a vida, morre e volta depois de um tempo.
 ## Pode ficar parado ou andar de um lado para o outro (strafe).
+## Por padrão é do time Vermelho, então cada abate conta ponto para o Azul.
 
+## Nome que aparece no feed de abates.
+@export var display_name := "Boneco"
 @export var respawn_time := 2.0
 ## Distância que ele anda para cada lado. 0 = fica parado.
 @export var strafe_distance := 0.0
@@ -47,7 +50,7 @@ func _on_damaged(_amount: int, headshot: bool) -> void:
 	_update_label()
 
 
-func _on_died() -> void:
+func _on_died(_killer: Node, _headshot: bool) -> void:
 	_set_alive(false)
 	await get_tree().create_timer(respawn_time).timeout
 	health.reset()

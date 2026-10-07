@@ -8,6 +8,10 @@ const CROUCH_HEIGHT := 1.2
 const CAPSULE_RADIUS := 0.4
 const BODY_HITBOX_STAND := 1.44
 const BODY_HITBOX_CROUCH := 0.95
+const DEAD_HEAD_HEIGHT := 0.3
+
+## Nome que aparece no feed de abates.
+@export var display_name := "Você"
 
 @export_group("Movimento (metros por segundo)")
 ## Velocidade normal (só com WASD).
@@ -34,6 +38,10 @@ var look_pitch := 0.0
 ## Multiplicador da sensibilidade (fica menor com a mira da sniper).
 var sensitivity_scale := 1.0
 var is_crouching := false
+## Desligado pela partida quando ela termina.
+var controls_enabled := true
+
+var _spawn_protection_timer := 0.0
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -47,7 +55,43 @@ var is_crouching := false
 
 func _ready() -> void:
 	add_to_group("player")
+	health.died.connect(_on_died)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+## true se o jogador está vivo e pode se mexer e atirar.
+func can_act() -> bool:
+	return controls_enabled and not health.is_dead
+
+
+## Coloca o jogador vivo no ponto de nascimento, com vida e pentes cheios.
+## Fica sem levar dano por "protection_time" segundos ou até atirar.
+func respawn(at: Transform3D, protection_time: float) -> void:
+	health.reset()
+	global_position = at.origin
+	rotation = Vector3(0.0, at.basis.get_euler().y, 0.0)
+	velocity = Vector3.ZERO
+	look_pitch = 0.0
+	if is_crouching:
+		_set_crouch(false)
+	head.position.y = stand_head_height
+	collision_layer = 2
+	for hitbox in hitboxes.get_children():
+		(hitbox as Hitbox).set_enabled(true)
+	weapons.refill()
+	weapons.visible = true
+	health.invulnerable = protection_time > 0.0
+	_spawn_protection_timer = protection_time
+
+
+func _on_died(_killer: Node, _headshot: bool) -> void:
+	weapons.set_scoped(false)
+	weapons.visible = false
+	health.invulnerable = false
+	# Corpo morto não bloqueia ninguém nem leva tiro.
+	collision_layer = 0
+	for hitbox in hitboxes.get_children():
+		(hitbox as Hitbox).set_enabled(false)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -59,6 +103,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed("ui_cancel"):
 		# Esc solta o mouse.
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	elif event.is_action_pressed("debug_kill") and OS.is_debug_build() and can_act():
+		# Só para testes: morrer na hora para testar o renascimento.
+		health.invulnerable = false
+		health.take_damage(health.max_health, false)
 	elif event is InputEventMouseButton and event.is_pressed() and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		# Clicar na tela prende o mouse de novo.
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -71,14 +119,24 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
-	_update_crouch(delta)
+	if _spawn_protection_timer > 0.0:
+		_spawn_protection_timer -= delta
+		if _spawn_protection_timer <= 0.0:
+			health.invulnerable = false
 
+	if health.is_dead:
+		# Câmera desce até o chão enquanto espera renascer.
+		head.position.y = move_toward(head.position.y, DEAD_HEAD_HEIGHT, 3.0 * delta)
+	else:
+		_update_crouch(delta)
+
+	var active := can_act()
 	if not is_on_floor():
 		velocity.y -= gravity * delta
-	elif Input.is_action_just_pressed("jump"):
+	elif active and Input.is_action_just_pressed("jump"):
 		velocity.y = jump_velocity
 
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back") if active else Vector2.ZERO
 	var wish_dir := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
 

@@ -74,6 +74,18 @@ func block_fire_until_release() -> void:
 	_fire_blocked = true
 
 
+## Enche todos os pentes e volta para o fuzil (usado ao renascer).
+func refill() -> void:
+	for i in weapons.size():
+		_magazine[i] = weapons[i].magazine_size
+	set_scoped(false)
+	_reload_timer = 0.0
+	_fire_cooldown = 0.0
+	current_index = -1
+	equip(0)
+	_equip_timer = 0.0
+
+
 func equip(index: int) -> void:
 	if index == current_index or index < 0 or index >= weapons.size():
 		return
@@ -138,7 +150,7 @@ func _process(delta: float) -> void:
 		if Input.is_action_pressed("fire"):
 			return
 		_fire_blocked = false
-	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED or not player.can_act():
 		return
 
 	if Input.is_action_just_pressed("reload"):
@@ -152,7 +164,7 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED or not player.can_act():
 		return
 	if event.is_action_pressed("weapon_1"):
 		equip(0)
@@ -178,6 +190,8 @@ func _try_fire() -> void:
 	_fire_cooldown = weapon.fire_interval
 	_shoot_ray(weapon)
 	_kick = KICK_DISTANCE
+	# Atirar cancela a proteção de nascimento.
+	player.health.invulnerable = false
 
 	if _magazine[current_index] == 0:
 		start_reload()
@@ -200,8 +214,11 @@ func _shoot_ray(weapon: WeaponData) -> void:
 
 	var hitbox := hit.collider as Hitbox
 	if hitbox != null and hitbox.health != null:
+		# Sem fogo amigo: tiro em aliado não causa dano.
+		if hitbox.health.team == player.health.team:
+			return
 		var damage := weapon.head_damage if hitbox.is_head else weapon.body_damage
-		var killed := hitbox.health.take_damage(damage, hitbox.is_head)
+		var killed := hitbox.health.take_damage(damage, hitbox.is_head, player)
 		hit_confirmed.emit(hitbox.is_head, killed)
 	else:
 		_spawn_impact_mark(hit.position, hit.normal)

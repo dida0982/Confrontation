@@ -23,7 +23,7 @@ radius = 0.17
 radius = 0.35
 height = 1.44
 
-[node name="TrainingDummy" type="StaticBody3D"]
+[node name="TrainingDummy" type="StaticBody3D" groups=["combatants"]]
 collision_layer = 2
 collision_mask = 0
 script = ExtResource("1_dummy")
@@ -34,6 +34,7 @@ shape = SubResource("shape_collision")
 
 [node name="Health" type="Node" parent="."]
 script = ExtResource("2_health")
+team = 1
 
 [node name="Visual" type="Node3D" parent="."]
 

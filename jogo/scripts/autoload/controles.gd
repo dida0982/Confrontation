@@ -16,6 +16,8 @@ const TECLAS := {
 	"weapon_2": [KEY_2],
 	"weapon_3": [KEY_3],
 	"toggle_fullscreen": [KEY_F11],
+	"debug_kill": [KEY_F8],
+	"restart_match": [KEY_ENTER, KEY_KP_ENTER],
 }
 
 const BOTOES_MOUSE := {
