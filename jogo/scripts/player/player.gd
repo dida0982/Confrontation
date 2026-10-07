@@ -1,7 +1,8 @@
 class_name Player
 extends CharacterBody3D
 ## Jogador em primeira pessoa: câmera no mouse, andar, correr (Shift),
-## agachar e pular. As armas ficam no nó WeaponManager (filho da câmera).
+## agachar, pular e deslizar (Ctrl com velocidade alta).
+## As armas ficam no nó WeaponManager (filho da câmera).
 
 const STAND_HEIGHT := 1.8
 const CROUCH_HEIGHT := 1.2
@@ -25,6 +26,21 @@ const DEAD_HEAD_HEIGHT := 0.3
 @export var air_accel := 6.0
 @export var jump_velocity := 4.6
 
+@export_group("Deslize")
+## Velocidade mínima para o Ctrl virar deslize (correndo com Shift passa disso).
+@export var slide_min_speed := 6.0
+## Velocidade extra ganha ao começar a deslizar.
+@export var slide_boost := 2.0
+@export var slide_max_speed := 10.0
+## Quanto o deslize perde de velocidade por segundo.
+@export var slide_friction := 7.0
+## Abaixo desta velocidade o deslize acaba e vira agachado normal.
+@export var slide_end_speed := 3.0
+## Tempo depois de um deslize até poder deslizar de novo.
+@export var slide_cooldown := 0.6
+## Inclinação da câmera durante o deslize (graus).
+@export var slide_camera_tilt := 5.0
+
 @export_group("Câmera")
 ## Sensibilidade do mouse (radianos por pixel).
 @export var mouse_sensitivity := 0.0025
@@ -38,10 +54,16 @@ var look_pitch := 0.0
 ## Multiplicador da sensibilidade (fica menor com a mira da sniper).
 var sensitivity_scale := 1.0
 var is_crouching := false
+var is_sliding := false
 ## Desligado pela partida quando ela termina.
 var controls_enabled := true
 
 var _spawn_protection_timer := 0.0
+var _slide_direction := Vector3.ZERO
+var _slide_speed := 0.0
+var _slide_cooldown_timer := 0.0
+## Apertou Ctrl no ar com velocidade: desliza ao tocar o chão.
+var _slide_queued := false
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -72,6 +94,8 @@ func respawn(at: Transform3D, protection_time: float) -> void:
 	rotation = Vector3(0.0, at.basis.get_euler().y, 0.0)
 	velocity = Vector3.ZERO
 	look_pitch = 0.0
+	is_sliding = false
+	_slide_queued = false
 	if is_crouching:
 		_set_crouch(false)
 	head.position.y = stand_head_height
@@ -114,8 +138,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	camera.rotation.x = look_pitch
+	var target_tilt := deg_to_rad(slide_camera_tilt) if is_sliding else 0.0
+	camera.rotation.z = lerpf(camera.rotation.z, target_tilt, minf(10.0 * delta, 1.0))
 
 
 func _physics_process(delta: float) -> void:
@@ -124,32 +150,46 @@ func _physics_process(delta: float) -> void:
 		if _spawn_protection_timer <= 0.0:
 			health.invulnerable = false
 
+	var active := can_act()
+	_slide_cooldown_timer = maxf(_slide_cooldown_timer - delta, 0.0)
+	if active:
+		_update_slide_start()
+
 	if health.is_dead:
 		# Câmera desce até o chão enquanto espera renascer.
 		head.position.y = move_toward(head.position.y, DEAD_HEAD_HEIGHT, 3.0 * delta)
 	else:
 		_update_crouch(delta)
 
-	var active := can_act()
 	if not is_on_floor():
 		velocity.y -= gravity * delta
 	elif active and Input.is_action_just_pressed("jump"):
 		velocity.y = jump_velocity
+		# Pular no meio do deslize mantém o embalo.
+		_end_slide()
 
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back") if active else Vector2.ZERO
 	var wish_dir := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
 
-	if is_on_floor():
+	if is_sliding:
+		_slide_speed = move_toward(_slide_speed, 0.0, slide_friction * delta)
+		horizontal = _slide_direction * _slide_speed
+	elif is_on_floor():
 		var accel := ground_accel if wish_dir != Vector3.ZERO else ground_decel
 		horizontal = horizontal.move_toward(wish_dir * _max_speed(), accel * delta)
 	elif wish_dir != Vector3.ZERO:
 		# No ar dá para corrigir um pouco a direção, mas não muito.
-		horizontal = horizontal.move_toward(wish_dir * _max_speed(), air_accel * delta)
+		# Não perde o embalo que já tinha (ex.: pulo no meio do deslize).
+		var air_speed := maxf(_max_speed(), horizontal.length())
+		horizontal = horizontal.move_toward(wish_dir * air_speed, air_accel * delta)
 
 	velocity.x = horizontal.x
 	velocity.z = horizontal.z
 	move_and_slide()
+
+	if is_sliding:
+		_update_slide_after_move()
 
 
 ## RIDs do próprio jogador, para o tiro não acertar a si mesmo.
@@ -169,8 +209,57 @@ func _max_speed() -> float:
 	return speed * weapons.get_speed_multiplier()
 
 
+func _horizontal_speed() -> float:
+	return Vector2(velocity.x, velocity.z).length()
+
+
+## Começa o deslize quando aperta Ctrl rápido o bastante (no chão, ou ao
+## aterrissar se apertou no ar depois de pular correndo).
+func _update_slide_start() -> void:
+	if is_sliding:
+		return
+	if Input.is_action_just_pressed("crouch") and _horizontal_speed() >= slide_min_speed and _slide_cooldown_timer <= 0.0:
+		if is_on_floor():
+			_start_slide()
+		else:
+			_slide_queued = true
+	if _slide_queued:
+		if not Input.is_action_pressed("crouch"):
+			_slide_queued = false
+		elif is_on_floor():
+			_slide_queued = false
+			if _horizontal_speed() >= slide_min_speed:
+				_start_slide()
+
+
+func _start_slide() -> void:
+	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+	is_sliding = true
+	_slide_direction = horizontal.normalized()
+	_slide_speed = minf(horizontal.length() + slide_boost, slide_max_speed)
+	if not is_crouching:
+		_set_crouch(true)
+
+
+func _end_slide() -> void:
+	if not is_sliding:
+		return
+	is_sliding = false
+	_slide_cooldown_timer = slide_cooldown
+
+
+func _update_slide_after_move() -> void:
+	# Se bateu numa parede, o deslize perde velocidade e acompanha a parede.
+	var real_speed := _horizontal_speed()
+	_slide_speed = minf(_slide_speed, real_speed)
+	if real_speed > 0.1:
+		_slide_direction = Vector3(velocity.x, 0.0, velocity.z) / real_speed
+	if _slide_speed <= slide_end_speed or not is_on_floor() or not Input.is_action_pressed("crouch") or not can_act():
+		_end_slide()
+
+
 func _update_crouch(delta: float) -> void:
-	var wants_crouch := Input.is_action_pressed("crouch")
+	var wants_crouch := Input.is_action_pressed("crouch") or is_sliding
 	if wants_crouch and not is_crouching:
 		_set_crouch(true)
 	elif not wants_crouch and is_crouching and _can_stand_up():
