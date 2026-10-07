@@ -5,6 +5,7 @@
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_hud"]
 [ext_resource type="Shader" path="res://materials/grade.gdshader" id="4_grid"]
 [ext_resource type="Script" path="res://scripts/match/team_deathmatch.gd" id="5_tdm"]
+[ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="6_menu"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_material"]
 
@@ -171,3 +172,6 @@ spawns_vermelho = NodePath("../Spawns/Vermelho")
 script = ExtResource("3_hud")
 player_path = NodePath("../Player")
 match_path = NodePath("../TeamDeathmatch")
+
+[node name="PauseMenu" type="CanvasLayer" parent="."]
+script = ExtResource("6_menu")

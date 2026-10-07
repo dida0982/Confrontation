@@ -42,8 +42,6 @@ const DEAD_HEAD_HEIGHT := 0.3
 @export var slide_camera_tilt := 5.0
 
 @export_group("Câmera")
-## Sensibilidade do mouse (radianos por pixel).
-@export var mouse_sensitivity := 0.0025
 @export var stand_head_height := 1.6
 @export var crouch_head_height := 1.1
 @export var crouch_transition_speed := 8.0
@@ -81,9 +79,10 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 
-## true se o jogador está vivo e pode se mexer e atirar.
+## true se o jogador está vivo e pode se mexer e atirar
+## (falso com o menu aberto, porque o mouse fica solto).
 func can_act() -> bool:
-	return controls_enabled and not health.is_dead
+	return controls_enabled and not health.is_dead and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 
 
 ## Coloca o jogador vivo no ponto de nascimento, com vida e pentes cheios.
@@ -121,18 +120,16 @@ func _on_died(_killer: Node, _headshot: bool) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		var motion := event as InputEventMouseMotion
-		var sensitivity := mouse_sensitivity * sensitivity_scale
+		# A sensibilidade é ajustada no menu (Esc > Mira).
+		var sensitivity := Configuracoes.radians_per_pixel() * sensitivity_scale
 		rotate_y(-motion.relative.x * sensitivity)
 		look_pitch = clampf(look_pitch - motion.relative.y * sensitivity, deg_to_rad(-89.0), deg_to_rad(89.0))
-	elif event.is_action_pressed("ui_cancel"):
-		# Esc solta o mouse.
-		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	elif event.is_action_pressed("debug_kill") and OS.is_debug_build() and can_act():
 		# Só para testes: morrer na hora para testar o renascimento.
 		health.invulnerable = false
 		health.take_damage(health.max_health, false)
 	elif event is InputEventMouseButton and event.is_pressed() and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
-		# Clicar na tela prende o mouse de novo.
+		# Clicar na tela prende o mouse de novo (ex.: depois de trocar de janela).
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 		weapons.block_fire_until_release()
 		get_viewport().set_input_as_handled()

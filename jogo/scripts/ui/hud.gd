@@ -3,9 +3,6 @@ extends CanvasLayer
 ## placar e tempo da partida, feed de abates, tela de morte e tela de fim de partida.
 ## Tudo é criado por código aqui para ficar fácil de ajustar.
 
-const CROSSHAIR_COLOR := Color(0.35, 1.0, 0.65)
-const CROSSHAIR_LENGTH := 6.0
-const CROSSHAIR_THICKNESS := 2.0
 const HIT_MARKER_TIME := 0.15
 const KILLFEED_TIME := 5.0
 const KILLFEED_MAX := 5
@@ -106,8 +103,8 @@ func _process(delta: float) -> void:
 		_ammo_label.text = "RECARREGANDO..."
 	else:
 		_ammo_label.text = "%d / ∞" % weapons.ammo_in_magazine()
-	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc soltar o mouse  |  F11 tela cheia  |  F8 morrer (teste)" % Engine.get_frames_per_second()
-	_center_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED
+	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  F11 tela cheia  |  F8 morrer (teste)" % Engine.get_frames_per_second()
+	_center_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not _is_menu_open()
 
 	_update_match_info()
 	_update_killfeed(delta)
@@ -211,14 +208,7 @@ func _draw_crosshair() -> void:
 	if weapons.is_scoped or player.health.is_dead:
 		return
 
-	# A distância das linhas até o centro mostra a imprecisão atual da arma.
-	var gap := 3.0 + _spread_in_pixels()
-	for dir in [Vector2.RIGHT, Vector2.LEFT, Vector2.UP, Vector2.DOWN]:
-		var start: Vector2 = center + dir * gap
-		var end: Vector2 = center + dir * (gap + CROSSHAIR_LENGTH)
-		_crosshair.draw_line(start, end, Color.BLACK, CROSSHAIR_THICKNESS + 2.0)
-		_crosshair.draw_line(start, end, CROSSHAIR_COLOR, CROSSHAIR_THICKNESS)
-	_crosshair.draw_rect(Rect2(center - Vector2(1, 1), Vector2(2, 2)), CROSSHAIR_COLOR)
+	Crosshair.draw(_crosshair, center, Configuracoes.crosshair_style)
 
 
 func _draw_scope() -> void:
@@ -235,10 +225,9 @@ func _draw_scope() -> void:
 	_scope_overlay.draw_circle(center, 2.0, Color.RED)
 
 
-func _spread_in_pixels() -> float:
-	# A câmera usa FOV horizontal, então convertemos o ângulo em pixels pela largura da tela.
-	var half_fov := deg_to_rad(player.camera.fov) / 2.0
-	return tan(deg_to_rad(weapons.current_spread_deg())) / tan(half_fov) * _crosshair.size.x / 2.0
+func _is_menu_open() -> bool:
+	var menu := get_tree().get_first_node_in_group("pause_menu")
+	return menu != null and menu.is_open
 
 
 func _on_hit_confirmed(headshot: bool, killed: bool) -> void:

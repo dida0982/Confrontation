@@ -17,6 +17,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 [autoload]
 
 Controles="*res://scripts/autoload/controles.gd"
+Configuracoes="*res://scripts/autoload/configuracoes.gd"
 
 [display]
 
