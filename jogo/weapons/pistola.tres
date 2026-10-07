@@ -8,7 +8,6 @@ display_name = "Pistola"
 automatic = false
 fire_interval = 0.15
 magazine_size = 12
-reserve_ammo = 36
 reload_time = 1.75
 equip_time = 0.5
 head_damage = 100

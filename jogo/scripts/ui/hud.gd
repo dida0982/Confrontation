@@ -55,7 +55,7 @@ func _process(delta: float) -> void:
 	if weapons.is_reloading():
 		_ammo_label.text = "RECARREGANDO..."
 	else:
-		_ammo_label.text = "%d / %d" % [weapons.ammo_in_magazine(), weapons.ammo_reserve()]
+		_ammo_label.text = "%d / ∞" % weapons.ammo_in_magazine()
 	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift andar  |  Ctrl agachar  |  Espaço pular  |  Esc soltar o mouse  |  F11 tela cheia" % Engine.get_frames_per_second()
 	_center_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED
 

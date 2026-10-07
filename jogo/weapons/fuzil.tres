@@ -8,7 +8,6 @@ display_name = "Fuzil"
 automatic = true
 fire_interval = 0.1
 magazine_size = 25
-reserve_ammo = 75
 reload_time = 2.5
 equip_time = 0.8
 head_damage = 100

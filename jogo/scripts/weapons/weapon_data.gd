@@ -8,8 +8,8 @@ extends Resource
 @export var automatic := false
 ## Segundos entre um tiro e outro.
 @export var fire_interval := 0.15
+## Balas no pente. A munição de reserva é infinita: recarregar sempre enche o pente.
 @export var magazine_size := 12
-@export var reserve_ammo := 36
 @export var reload_time := 1.75
 ## Tempo para sacar a arma depois de trocar.
 @export var equip_time := 0.5

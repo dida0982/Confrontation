@@ -27,7 +27,6 @@ var current_index := -1
 var is_scoped := false
 
 var _magazine: Array[int] = []
-var _reserve: Array[int] = []
 var _fire_cooldown := 0.0
 var _reload_timer := 0.0
 var _equip_timer := 0.0
@@ -47,7 +46,6 @@ func _ready() -> void:
 	_rest_position = position
 	for weapon in weapons:
 		_magazine.append(weapon.magazine_size)
-		_reserve.append(weapon.reserve_ammo)
 
 	_impact_mesh = SphereMesh.new()
 	_impact_mesh.radius = 0.03
@@ -65,10 +63,6 @@ func current() -> WeaponData:
 
 func ammo_in_magazine() -> int:
 	return _magazine[current_index]
-
-
-func ammo_reserve() -> int:
-	return _reserve[current_index]
 
 
 func is_reloading() -> bool:
@@ -122,7 +116,7 @@ func set_scoped(value: bool) -> void:
 
 func start_reload() -> void:
 	var weapon := current()
-	if is_reloading() or _magazine[current_index] >= weapon.magazine_size or _reserve[current_index] <= 0:
+	if is_reloading() or _magazine[current_index] >= weapon.magazine_size:
 		return
 	set_scoped(false)
 	_reload_timer = weapon.reload_time
@@ -233,7 +227,4 @@ func _spawn_impact_mark(hit_position: Vector3, normal: Vector3) -> void:
 
 func _finish_reload() -> void:
 	_reload_timer = 0.0
-	var needed := current().magazine_size - _magazine[current_index]
-	var taken := mini(needed, _reserve[current_index])
-	_magazine[current_index] += taken
-	_reserve[current_index] -= taken
+	_magazine[current_index] = current().magazine_size

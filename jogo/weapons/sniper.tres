@@ -8,7 +8,6 @@ display_name = "Sniper"
 automatic = false
 fire_interval = 1.5
 magazine_size = 5
-reserve_ammo = 10
 reload_time = 3.7
 equip_time = 1.2
 head_damage = 100
