@@ -1,0 +1,101 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/components/health.gd" id="2_health"]
+[ext_resource type="Script" path="res://scripts/weapons/weapon_manager.gd" id="3_weapons"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_hitbox"]
+
+[sub_resource type="CapsuleShape3D" id="shape_body"]
+resource_local_to_scene = true
+radius = 0.4
+height = 1.8
+
+[sub_resource type="SphereShape3D" id="shape_head_hitbox"]
+radius = 0.17
+
+[sub_resource type="CapsuleShape3D" id="shape_body_hitbox"]
+resource_local_to_scene = true
+radius = 0.35
+height = 1.44
+
+[sub_resource type="StandardMaterial3D" id="mat_rifle"]
+albedo_color = Color(0.2, 0.22, 0.25, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_pistol"]
+albedo_color = Color(0.3, 0.3, 0.3, 1)
+
+[sub_resource type="StandardMaterial3D" id="mat_sniper"]
+albedo_color = Color(0.25, 0.3, 0.2, 1)
+
+[sub_resource type="BoxMesh" id="mesh_rifle"]
+material = SubResource("mat_rifle")
+size = Vector3(0.06, 0.09, 0.6)
+
+[sub_resource type="BoxMesh" id="mesh_pistol"]
+material = SubResource("mat_pistol")
+size = Vector3(0.05, 0.1, 0.22)
+
+[sub_resource type="BoxMesh" id="mesh_sniper"]
+material = SubResource("mat_sniper")
+size = Vector3(0.06, 0.09, 0.85)
+
+[node name="Player" type="CharacterBody3D"]
+collision_layer = 2
+collision_mask = 3
+script = ExtResource("1_player")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+position = Vector3(0, 0.9, 0)
+shape = SubResource("shape_body")
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+
+[node name="Head" type="Node3D" parent="."]
+position = Vector3(0, 1.6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="Head"]
+keep_aspect = 0
+fov = 103.0
+near = 0.03
+
+[node name="WeaponManager" type="Node3D" parent="Head/Camera3D"]
+position = Vector3(0.22, -0.2, -0.45)
+script = ExtResource("3_weapons")
+
+[node name="Fuzil" type="MeshInstance3D" parent="Head/Camera3D/WeaponManager"]
+cast_shadow = 0
+mesh = SubResource("mesh_rifle")
+
+[node name="Pistola" type="MeshInstance3D" parent="Head/Camera3D/WeaponManager"]
+position = Vector3(0, 0, 0.15)
+cast_shadow = 0
+mesh = SubResource("mesh_pistol")
+
+[node name="Sniper" type="MeshInstance3D" parent="Head/Camera3D/WeaponManager"]
+position = Vector3(0, 0, -0.1)
+cast_shadow = 0
+mesh = SubResource("mesh_sniper")
+
+[node name="Hitboxes" type="Node3D" parent="."]
+
+[node name="Head" type="Area3D" parent="Hitboxes"]
+position = Vector3(0, 1.65, 0)
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_hitbox")
+is_head = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitboxes/Head"]
+shape = SubResource("shape_head_hitbox")
+
+[node name="Body" type="Area3D" parent="Hitboxes"]
+position = Vector3(0, 0.72, 0)
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+script = ExtResource("4_hitbox")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitboxes/Body"]
+shape = SubResource("shape_body_hitbox")
