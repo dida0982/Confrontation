@@ -30,8 +30,6 @@ const BODY_HITBOX_CROUCH := 0.95
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 ## Olhar para cima/baixo controlado pelo mouse.
 var look_pitch := 0.0
-## Quanto o recuo da arma levantou a mira (controlado pelo WeaponManager).
-var recoil_pitch := 0.0
 ## Multiplicador da sensibilidade (fica menor com a mira da sniper).
 var sensitivity_scale := 1.0
 var is_crouching := false
@@ -68,7 +66,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(_delta: float) -> void:
-	camera.rotation.x = look_pitch + recoil_pitch
+	camera.rotation.x = look_pitch
 
 
 func _physics_process(delta: float) -> void:

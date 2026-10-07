@@ -4,6 +4,7 @@ extends Node3D
 ##
 ## O tiro é "hitscan": um raio invisível sai do centro da câmera em linha reta
 ## e acerta na hora. Por isso a bala não cai e não demora para chegar.
+## As armas não têm recuo: a mira não sobe nem abre ao atirar sem parar.
 ##
 ## Os nós filhos (modelos das armas) precisam estar na MESMA ORDEM da lista "weapons".
 
@@ -12,7 +13,6 @@ signal hit_confirmed(headshot: bool, killed: bool)
 ## Bits das camadas que o tiro acerta: 1 = mundo, 4 = hitbox.
 ## (Não acerta a camada 2 "jogadores", que é só para colisão de movimento.)
 const SHOT_MASK := 1 | 4
-const RECOIL_RECOVERY_SPEED := 18.0 # graus por segundo
 const KICK_DISTANCE := 0.05
 const MAX_IMPACT_MARKS := 60
 
@@ -31,8 +31,6 @@ var _reserve: Array[int] = []
 var _fire_cooldown := 0.0
 var _reload_timer := 0.0
 var _equip_timer := 0.0
-var _spray_shots := 0
-var _time_since_shot := 99.0
 var _fire_blocked := false
 var _default_fov := 90.0
 var _rest_position := Vector3.ZERO
@@ -91,7 +89,6 @@ func equip(index: int) -> void:
 	for i in get_child_count():
 		(get_child(i) as Node3D).visible = i == index
 	_equip_timer = current().equip_time
-	_spray_shots = 0
 
 
 func get_speed_multiplier() -> float:
@@ -101,7 +98,7 @@ func get_speed_multiplier() -> float:
 	return weapon.move_speed_multiplier * (weapon.scoped_speed_multiplier if is_scoped else 1.0)
 
 
-## Imprecisão atual em graus (parado, andando, pulando, spray...).
+## Imprecisão atual em graus (parado, andando, pulando).
 func current_spread_deg() -> float:
 	var weapon := current()
 	var spread := weapon.scoped_spread if is_scoped else weapon.base_spread
@@ -110,7 +107,6 @@ func current_spread_deg() -> float:
 	spread += weapon.move_spread * move_ratio
 	if not player.is_on_floor():
 		spread += weapon.air_spread
-	spread += minf(_spray_shots * weapon.spray_spread_per_shot, weapon.max_spray_spread)
 	return spread
 
 
@@ -135,10 +131,6 @@ func start_reload() -> void:
 func _process(delta: float) -> void:
 	_fire_cooldown = maxf(_fire_cooldown - delta, 0.0)
 	_equip_timer = maxf(_equip_timer - delta, 0.0)
-	_time_since_shot += delta
-	if _time_since_shot > current().spray_reset_time:
-		_spray_shots = 0
-		player.recoil_pitch = move_toward(player.recoil_pitch, 0.0, deg_to_rad(RECOIL_RECOVERY_SPEED) * delta)
 
 	_kick = move_toward(_kick, 0.0, 0.5 * delta)
 	position = _rest_position + Vector3(0, 0, _kick)
@@ -191,9 +183,6 @@ func _try_fire() -> void:
 	_magazine[current_index] -= 1
 	_fire_cooldown = weapon.fire_interval
 	_shoot_ray(weapon)
-	_spray_shots += 1
-	_time_since_shot = 0.0
-	player.recoil_pitch = minf(player.recoil_pitch + deg_to_rad(weapon.recoil_kick), deg_to_rad(weapon.max_recoil))
 	_kick = KICK_DISTANCE
 
 	if _magazine[current_index] == 0:

@@ -26,16 +26,6 @@ extends Resource
 @export var move_spread := 3.0
 ## Imprecisão extra no ar (pulando).
 @export var air_spread := 6.0
-## Quanto a imprecisão cresce a cada tiro seguido (spray).
-@export var spray_spread_per_shot := 0.0
-@export var max_spray_spread := 0.0
-## Segundos sem atirar para a mira voltar ao normal.
-@export var spray_reset_time := 0.35
-
-@export_group("Recuo")
-## Graus que a mira sobe a cada tiro.
-@export var recoil_kick := 0.0
-@export var max_recoil := 0.0
 
 @export_group("Mira com zoom")
 @export var has_scope := false
