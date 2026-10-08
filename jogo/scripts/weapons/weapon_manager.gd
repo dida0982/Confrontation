@@ -17,6 +17,8 @@ signal fired
 ## (Não acerta a camada 2 "jogadores", que é só para colisão de movimento.)
 const SHOT_MASK := 1 | 4
 const KICK_DISTANCE := 0.05
+## Volume do som de tiro da sua arma (dB). Negativo = mais baixo.
+const SHOT_VOLUME_DB := -10.0
 const MAX_IMPACT_MARKS := 60
 
 @export var weapons: Array[WeaponData] = [
@@ -291,6 +293,7 @@ func _play_foley(sound: AudioStream, volume_db: float) -> void:
 
 func _new_audio_player(polyphony: int) -> AudioStreamPlayer:
 	var audio := AudioStreamPlayer.new()
+	audio.volume_db = SHOT_VOLUME_DB
 	audio.bus = GameSettings.EFFECTS_BUS
 	audio.max_polyphony = polyphony
 	add_child(audio)
