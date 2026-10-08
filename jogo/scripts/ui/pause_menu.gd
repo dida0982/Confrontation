@@ -6,6 +6,7 @@ extends CanvasLayer
 ## - principal: Continuar, Mira, Voltar todos para a sala (só o host),
 ##   Sair da partida, Sair do jogo
 ## - mira: sensibilidade do mouse e tipo de mira (ponto ou cruz), com prévia
+## - voz: apertar V ou voz aberta, volume das vozes, microfone e medidor
 
 const PANEL_WIDTH := 460.0
 
@@ -17,6 +18,13 @@ var _sensitivity_slider: HSlider
 var _sensitivity_box: SpinBox
 var _style_buttons := {}
 var _preview: Control
+var _voice_page: VBoxContainer
+var _voice_mode_buttons := {}
+var _voice_volume_slider: HSlider
+var _threshold_slider: HSlider
+var _threshold_row: Control
+var _microphone_list: OptionButton
+var _mic_meter: ProgressBar
 
 
 func _ready() -> void:
@@ -29,7 +37,7 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not event.is_action_pressed("ui_cancel"):
 		return
-	if is_open and _crosshair_page.visible:
+	if is_open and (_crosshair_page.visible or _voice_page.visible):
 		_show_page(_main_page)
 	else:
 		_set_open(not is_open)
@@ -52,7 +60,13 @@ func _set_open(open: bool) -> void:
 func _show_page(page: Control) -> void:
 	_main_page.visible = page == _main_page
 	_crosshair_page.visible = page == _crosshair_page
+	_voice_page.visible = page == _voice_page
 	_sync_controls()
+
+
+func _process(_delta: float) -> void:
+	if visible and _voice_page.visible:
+		_mic_meter.value = Voz.input_level
 
 
 func _sync_controls() -> void:
@@ -61,6 +75,18 @@ func _sync_controls() -> void:
 	for style in _style_buttons:
 		(_style_buttons[style] as Button).set_pressed_no_signal(style == Configuracoes.crosshair_style)
 	_preview.queue_redraw()
+	for mode in _voice_mode_buttons:
+		(_voice_mode_buttons[mode] as Button).set_pressed_no_signal(mode == Configuracoes.voice_mode)
+	_voice_volume_slider.set_value_no_signal(Configuracoes.voice_volume * 100.0)
+	_threshold_slider.set_value_no_signal(Configuracoes.voice_threshold * 100.0)
+	_threshold_row.visible = Configuracoes.voice_mode == GameSettings.VoiceMode.ABERTA
+	_microphone_list.clear()
+	var devices := AudioServer.get_input_device_list()
+	for i in devices.size():
+		_microphone_list.add_item("Padrão do Windows" if devices[i] == "Default" else devices[i])
+		_microphone_list.set_item_metadata(i, devices[i])
+		if devices[i] == Configuracoes.microphone:
+			_microphone_list.select(i)
 
 
 func _on_sensitivity_changed(value: float) -> void:
@@ -102,14 +128,77 @@ func _build() -> void:
 
 	_main_page = _page(content)
 	_crosshair_page = _page(content)
+	_voice_page = _page(content)
 
 	_main_page.add_child(_button("Continuar", func() -> void: _set_open(false)))
 	_main_page.add_child(_button("Mira", func() -> void: _show_page(_crosshair_page)))
+	_main_page.add_child(_button("Voz", func() -> void: _show_page(_voice_page)))
 	if Rede.is_online() and multiplayer.is_server():
 		_main_page.add_child(_button("Voltar todos para a sala", func() -> void: Rede.return_to_lobby()))
 	_main_page.add_child(_button("Sair da partida", func() -> void: Rede.leave()))
 	_main_page.add_child(_button("Sair do jogo", func() -> void: get_tree().quit()))
 	_build_crosshair_page()
+	_build_voice_page()
+
+
+func _build_voice_page() -> void:
+	_voice_page.add_child(_title("VOZ", 24))
+
+	_voice_page.add_child(_label("Como falar"))
+	var modes := HBoxContainer.new()
+	modes.add_theme_constant_override("separation", 12)
+	var group := ButtonGroup.new()
+	for entry in [[GameSettings.VoiceMode.APERTAR, "Segurar V"], [GameSettings.VoiceMode.ABERTA, "Voz aberta"]]:
+		var mode: GameSettings.VoiceMode = entry[0]
+		var button := _button(entry[1], func() -> void:
+			Configuracoes.set_voice_mode(mode)
+			_sync_controls()
+		)
+		button.toggle_mode = true
+		button.button_group = group
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		modes.add_child(button)
+		_voice_mode_buttons[mode] = button
+	_voice_page.add_child(modes)
+
+	_voice_page.add_child(_label("Volume das vozes dos outros"))
+	_voice_volume_slider = _slider(0.0, 200.0, func(value: float) -> void: Configuracoes.set_voice_volume(value / 100.0))
+	_voice_page.add_child(_voice_volume_slider)
+
+	_voice_page.add_child(_label("Microfone"))
+	_microphone_list = OptionButton.new()
+	_microphone_list.custom_minimum_size = Vector2(0, 40)
+	_microphone_list.focus_mode = Control.FOCUS_NONE
+	_microphone_list.item_selected.connect(func(index: int) -> void:
+		Configuracoes.set_microphone(_microphone_list.get_item_metadata(index))
+	)
+	_voice_page.add_child(_microphone_list)
+
+	_voice_page.add_child(_label("Teste do microfone (fale para ver a barra mexer)"))
+	_mic_meter = ProgressBar.new()
+	_mic_meter.max_value = 1.0
+	_mic_meter.show_percentage = false
+	_mic_meter.custom_minimum_size = Vector2(0, 18)
+	_voice_page.add_child(_mic_meter)
+
+	var threshold := VBoxContainer.new()
+	threshold.add_child(_label("Voz aberta: volume mínimo para transmitir"))
+	_threshold_slider = _slider(0.0, 25.0, func(value: float) -> void: Configuracoes.set_voice_threshold(value / 100.0))
+	threshold.add_child(_threshold_slider)
+	_threshold_row = threshold
+	_voice_page.add_child(threshold)
+
+	_voice_page.add_child(_button("Voltar", func() -> void: _show_page(_main_page)))
+
+
+func _slider(min_value: float, max_value: float, on_changed: Callable) -> HSlider:
+	var slider := HSlider.new()
+	slider.min_value = min_value
+	slider.max_value = max_value
+	slider.step = 1.0
+	slider.custom_minimum_size = Vector2(0, 28)
+	slider.value_changed.connect(on_changed)
+	return slider
 
 
 func _build_crosshair_page() -> void:
