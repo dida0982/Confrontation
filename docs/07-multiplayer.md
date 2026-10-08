@@ -126,4 +126,6 @@ Duas cópias do jogo rodando ao mesmo tempo (host + cliente pelo IP `127.0.0.1`)
 
 ## ➡️ Próximo passo: Fase 8, chat de voz por proximidade
 
-Com o multiplayer funcionando, dá para fazer a voz: o microfone de cada jogador toca no boneco dele, e quanto mais longe, mais baixo. Peça: *"vamos fazer a fase 8, o chat de voz"*. Vai ser criado o arquivo `docs/08-chat-de-voz.md`.
+Com o multiplayer funcionando, dá para fazer a voz: o microfone de cada jogador toca no boneco dele, e quanto mais longe, mais baixo. Peça: *"vamos fazer a fase 8, o chat de voz"*. Vai ser criado o arquivo `docs/09-chat-de-voz.md`.
+
+Para os amigos baixarem o jogo sem instalar o Godot, veja [08-gerar-e-publicar-o-jogo.md](08-gerar-e-publicar-o-jogo.md).

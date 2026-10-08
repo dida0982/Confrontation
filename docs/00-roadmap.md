@@ -10,7 +10,7 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 ## Onde estamos agora
 
 **Feito:** Fases 0 a 7 (projeto, jogador, armas, dano, mata-mata em equipe, mapa Porto e **multiplayer 5v5**), mais deslize, menu da mira, placar no Tab e minimapa
-**Agora:** jogar com amigos seguindo [07-multiplayer.md](07-multiplayer.md)
+**Agora:** jogar com amigos: baixe o jogo em <https://github.com/dida0982/Confrontation/releases/latest> e siga [08-gerar-e-publicar-o-jogo.md](08-gerar-e-publicar-o-jogo.md)
 **Próximo passo:** Fase 8, chat de voz por proximidade
 
 ---
@@ -112,7 +112,7 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 - [ ] Otimização (FPS alto é obrigatório em jogo de tiro)
 - [ ] Testes com jogadores e correção de bugs
-- [ ] Exportar o jogo para Windows (executável .exe)
+- [x] Exportar o jogo para Windows (`Confrontation.exe`) e publicar no GitHub Releases ([08-gerar-e-publicar-o-jogo.md](08-gerar-e-publicar-o-jogo.md))
 - [ ] Publicar grátis, se quiser (ex.: itch.io)
 
 ### Futuro: modo plantar a bomba

@@ -1,0 +1,36 @@
+﻿CONFRONTATION - versão 0.1.0
+FPS tático 5 contra 5, sem habilidades. Feito com Godot (grátis).
+Site do projeto: https://github.com/dida0982/Confrontation
+
+COMO ABRIR
+1. Extraia (descompacte) o arquivo .zip numa pasta.
+2. Abra o Confrontation.exe.
+3. Se o Windows mostrar "O Windows protegeu o computador":
+   clique em "Mais informações" e depois em "Executar assim mesmo".
+   (Isso aparece porque o jogo é novo e não tem assinatura paga da Microsoft.)
+
+JOGAR SOZINHO
+No menu, clique em "Treinar sozinho no Porto" ou "Sala de treino".
+
+JOGAR COM AMIGOS NA MESMA CASA (mesmo Wi-Fi)
+1. Quem vai hospedar clica em "Criar partida".
+   Na primeira vez o Firewall do Windows pergunta: clique em "Permitir".
+2. A sala mostra o IP do host (exemplo: 192.168.0.15).
+3. Os amigos clicam em "Entrar em partida" e digitam esse IP.
+4. O host clica em "Começar partida".
+
+JOGAR COM AMIGOS PELA INTERNET (cada um na sua casa)
+Todos precisam instalar o Radmin VPN (grátis): https://www.radmin-vpn.com/
+1. O host abre o Radmin VPN, clica em "Criar rede" (em inglês: "Create Network"),
+   escolhe um nome e uma senha e passa os dois para os amigos.
+2. Os amigos abrem o Radmin VPN, clicam em "Entrar em rede" (em inglês: "Join Network")
+   e digitam o nome e a senha.
+3. O host abre o jogo e clica em "Criar partida".
+4. Os amigos digitam no jogo o IP do host que aparece no Radmin VPN
+   (começa com 26.) em "Entrar em partida".
+5. O host clica em "Começar partida".
+
+CONTROLES
+WASD andar | Shift correr | Ctrl agachar (correndo: desliza) | Espaço pular
+Botão esquerdo atirar | Botão direito zoom da sniper | R recarregar
+1 Fuzil | 2 Pistola | 3 Sniper | Tab placar | Esc menu | F11 tela cheia

@@ -67,6 +67,10 @@ Depois, vamos fazer o modo competitivo do Valorant: o Ataque planta a bomba no *
 
 ## 6. Como jogar
 
+**Só quer jogar?** Baixe o `.zip` em **[Releases](https://github.com/dida0982/Confrontation/releases/latest)**, extraia e abra o `Confrontation.exe`. Não precisa instalar nada. Como chamar os amigos está no `LEIA-ME.txt` que vem junto.
+
+**Vai desenvolver?**
+
 1. Abra o projeto no Godot e aperte **F5**.
 2. No menu, escolha **Treinar sozinho**, **Criar partida** (você vira o host) ou **Entrar em partida** (digite o IP do host).
 3. Para jogar com amigos pela internet, veja [docs/07-multiplayer.md](docs/07-multiplayer.md).
@@ -101,8 +105,10 @@ jogo de fps/
 │   ├── 04-deslize-menu-e-placar.md
 │   ├── 05-mapa-porto.md
 │   ├── 06-minimapa.md
-│   ├── 07-multiplayer.md                   ← o que foi feito por último
+│   ├── 07-multiplayer.md
+│   ├── 08-gerar-e-publicar-o-jogo.md       ← o que foi feito por último
 │   └── img/                                ← planta e fotos dos mapas
+├── distribuicao/    ← LEIA-ME.txt que vai junto no download do jogo
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)
     ├── scenes/      ← cenas (mapas/, sala de treino, jogador, boneco de treino)
     ├── scripts/     ← código (GDScript); scripts/match/ tem as regras da partida
