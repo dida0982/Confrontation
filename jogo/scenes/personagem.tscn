@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/player/character_model.gd" id="1_model"]
+[ext_resource type="PackedScene" path="res://modelos/personagem_swat.glb" id="2_swat"]
+
+[node name="Personagem" type="Node3D"]
+script = ExtResource("1_model")
+
+[node name="SWAT" parent="." instance=ExtResource("2_swat")]
+rotation_degrees = Vector3(0, 180, 0)

@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://modelos/pistola.glb" id="1_modelo"]
+
+[node name="Pistola" type="Node3D"]
+
+[node name="Modelo" parent="." instance=ExtResource("1_modelo")]
+rotation_degrees = Vector3(0, 90, 0)
+scale = Vector3(0.12, 0.12, 0.12)
+
+[node name="Cano" type="Marker3D" parent="."]
+position = Vector3(0, 0.06, -0.17)
