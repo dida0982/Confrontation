@@ -13,6 +13,7 @@ Todo o projeto é feito **somente com softwares gratuitos**.
 - Todo jogador nasce com as mesmas 3 armas. Não tem granada, fumaça, flash nem nenhum outro utilitário.
 - **Chat de voz por proximidade:** você ouve a voz dos outros jogadores saindo do boneco deles. Quanto mais perto, mais alto; longe, ninguém ouve.
 - Modo atual: **mata-mata em equipe** (detalhes abaixo). O modo de plantar a bomba fica para o futuro.
+- Em breve: **modo 5x5 contra bots** inteligentes, para jogar sozinho com e contra a máquina.
 
 ## 2. Regras de combate
 

@@ -9,9 +9,9 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 10 (jogo completo jogável em rede, com voz, interface nova, personagem e armas 3D, texturas e sons)
-**Agora:** testar seguindo [10-interface-arte-e-som.md](10-interface-arte-e-som.md) e publicar a versão 0.2.0
-**Próximo passo:** Fase 11, polimento e distribuição
+**Feito:** Fases 0 a 10 (jogo completo jogável em rede, com voz, interface nova, personagem e armas 3D com mãos e animações, texturas e sons)
+**Agora:** testar seguindo [10-interface-arte-e-som.md](10-interface-arte-e-som.md)
+**Próximo passo:** Fase 11, bots (NPCs inteligentes) e o modo 5x5 contra bots
 
 ---
 
@@ -112,7 +112,27 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - [x] Sons de tiro (3D para os outros), passos, recarga, troca de arma e acerto
 - [ ] (Depois) Animação de recarga, sons por tipo de chão, efeitos de impacto (faíscas, poeira)
 
-### Fase 11: Polimento e distribuição
+### Fase 11: Bots (NPCs inteligentes) ⬅️ PRÓXIMA
+
+**Objetivo:** um modo **5x5 com bots**. Você joga com 4 bots no seu time contra 5 bots no outro, e eles se mexem e lutam de um jeito parecido com jogadores de verdade. Também dá para completar uma partida online com bots quando faltar gente.
+
+**Como vai funcionar:**
+- [ ] **Navegação:** o mapa ganha uma malha de navegação (`NavigationRegion3D`, recurso grátis do Godot). Cada bot usa um `NavigationAgent3D` para achar caminhos, desviar de caixas e paredes e subir rampas
+- [ ] **O mesmo boneco dos jogadores:** o bot é o mesmo `Player`, só que controlado por um "cérebro" (`BotController`) em vez de teclado e mouse. Assim usa as mesmas armas, regras de dano, animações, sons e rede
+- [ ] **Visão de verdade:** o bot só "vê" quem está no campo de visão dele e sem parede no meio (raio de visão). Ouve tiros e passos por perto e aparece no minimapa ao atirar, como os jogadores
+- [ ] **Comportamentos (máquina de estados):**
+  - **Patrulhar:** escolhe uma rota (A, Meio ou B) e anda até pontos importantes do mapa, olhando para as quinas
+  - **Combater:** ao ver um inimigo, mira com tempo de reação e erro de mira (como um humano), atira em rajadas curtas, faz **strafe** (anda de um lado para o outro atirando, como no Valorant), agacha às vezes e escolhe a arma certa pela distância (sniper de longe, fuzil no meio, pistola ao ficar sem bala)
+  - **Procurar cobertura:** com inimigo perto demais ou recarregando, vai para trás de uma caixa ou parede
+  - **Investigar:** vai até onde ouviu um tiro ou viu alguém no minimapa
+  - **Flanquear:** às vezes vai por outra rota para pegar o inimigo pelas costas
+- [ ] **Trabalho em equipe:** os bots se dividem entre as rotas (não vão todos juntos), avisam os aliados onde viram inimigos e seguem o jogador do time de vez em quando
+- [ ] **Dificuldade (Fácil, Normal, Difícil):** muda o tempo de reação, a precisão da mira, o quanto miram na cabeça e o quanto usam strafe e cobertura
+- [ ] **Menu:** botão "Jogar contra bots (5x5)" com a escolha de dificuldade; na sala online, o host pode completar os times com bots
+- [ ] **Rede:** os bots rodam só no host (servidor); para os outros computadores eles aparecem como jogadores normais
+- [ ] **Bots com nome** e no placar do Tab, no feed de abates e no minimapa
+
+### Fase 12: Polimento e distribuição
 
 - [ ] Otimização (FPS alto é obrigatório em jogo de tiro)
 - [ ] Testes com jogadores e correção de bugs

@@ -49,6 +49,10 @@ Tudo fica salvo no computador. **Dica para computador fraco:** desligue as sombr
 
 ### Armas
 - Modelos 3D de verdade em primeira pessoa: **fuzil estilo AK**, **pistola** e **sniper com luneta**.
+- **Mãos segurando a arma:** braços com manga do uniforme e luva. A mão direita fica no cabo e a esquerda na frente da arma (na pistola, as duas no cabo).
+- **Animação de recarga** nas três armas: a arma inclina, a mão esquerda tira o pente, pega um novo e encaixa. Os sons acompanham.
+- **Animação de troca de arma:** a arma nova sobe de baixo da tela.
+- **Balanço ao andar** e **tranco ao atirar**.
 - **Clarão no cano** a cada tiro, o seu e o dos outros.
 
 ### Mapa
@@ -90,6 +94,10 @@ O volume dos efeitos fica em **Configurações → Áudio**.
 | O que | Onde |
 |---|---|
 | Posição da arma na tela | `scenes/player.tscn` → `Head/Camera3D/WeaponManager` (e cada arma dentro dele) |
+| Onde as mãos seguram cada arma | `scenes/armas/*.tscn` → marcadores `MaoDireita`, `MaoEsquerda` e `Pente` |
+| Cor e forma dos braços, cotovelos | `scripts/weapons/first_person_arms.gd` |
+| Curva das animações de recarga, troca e balanço | `scripts/weapons/weapon_manager.gd` → `_animate()` |
+| Volume do tiro da sua arma | `weapon_manager.gd` → `SHOT_VOLUME_DB` (os tiros dos outros: nó `SomTiro` em `player.tscn`) |
 | Posição da arma na mão do personagem | `scenes/personagem.tscn` → `Weapon Rotation Degrees` e `Weapon Offset` |
 | Espessura do contorno do time | `character_model.gd` → `OUTLINE_SIZE` |
 | Distância entre passos | `player.gd` → `STEP_DISTANCE` |
@@ -123,5 +131,6 @@ Quase tudo é **CC0** (domínio público). A exceção são os **sons de tiro**,
 ## ➡️ Próximos passos
 
 - **Publicar a versão 0.2.0** para os amigos, com voz, interface nova e arte nova. Veja [08-gerar-e-publicar-o-jogo.md](08-gerar-e-publicar-o-jogo.md).
-- **Fase 11, polimento:** otimização, correção de bugs e testes com mais jogadores.
+- **Fase 11, bots:** um modo 5x5 em que o seu time e o outro são bots inteligentes (veja o plano no [roadmap](00-roadmap.md)).
+- **Fase 12, polimento:** otimização, correção de bugs e testes com mais jogadores.
 - **Ideias para depois:** mais mapas, o modo de plantar a bomba, animação de recarga, sons diferentes para cada tipo de chão.
