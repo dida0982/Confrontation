@@ -132,7 +132,8 @@ func _process(delta: float) -> void:
 		_ammo_label.text = "RECARREGANDO..."
 	else:
 		_ammo_label.text = "%d / ∞" % weapons.ammo_in_magazine()
-	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  Tab placar  |  F11 tela cheia  |  F8 morrer (teste)" % Engine.get_frames_per_second()
+	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  Tab placar  |  F11 tela cheia%s" % [
+		Engine.get_frames_per_second(), "  |  F8 morrer (teste)" if OS.is_debug_build() else ""]
 	_center_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not _is_menu_open()
 
 	_update_match_info()
