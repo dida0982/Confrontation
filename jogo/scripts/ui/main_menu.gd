@@ -13,11 +13,22 @@ const BACKGROUND_SKIP := ["TeamDeathmatch", "HUD", "PauseMenu", "SpawnerJogadore
 const ORBIT_RADIUS := 62.0
 const ORBIT_HEIGHT := 34.0
 const ORBIT_SPEED := 0.04
+## Texto da tela de créditos (a lista completa fica em CREDITOS.md).
+const CREDITS := """[b]CONFRONTATION[/b] usa só recursos gratuitos:
+
+[b]Motor:[/b] Godot Engine (MIT)
+[b]Fonte:[/b] Rajdhani, Indian Type Foundry (SIL Open Font License)
+[b]Personagem e armas:[/b] Quaternius (CC0), via poly.pizza
+[b]Texturas:[/b] Poly Haven (CC0): Dimitrios Savva, Rico Cilliers, Rob Tuytel
+[b]Sons de tiro:[/b] "Gunshot Sounds" por Vincent Sevedge (CC-BY 3.0), via OpenGameArt
+[b]Passos e impactos:[/b] Kenney, www.kenney.nl (CC0)
+"""
 
 var _start_page: VBoxContainer
 var _join_page: VBoxContainer
 var _lobby_page: VBoxContainer
 var _settings_page: VBoxContainer
+var _credits_page: VBoxContainer
 var _column: VBoxContainer
 var _name_edit: LineEdit
 var _address_edit: LineEdit
@@ -51,7 +62,7 @@ func _process(delta: float) -> void:
 
 
 func _show_page(page: Control) -> void:
-	for each in [_start_page, _join_page, _lobby_page, _settings_page]:
+	for each in [_start_page, _join_page, _lobby_page, _settings_page, _credits_page]:
 		(each as Control).visible = each == page
 	# As configurações precisam de mais espaço.
 	_column.custom_minimum_size.x = SettingsPanel.WIDTH if page == _settings_page else COLUMN_WIDTH
@@ -181,10 +192,12 @@ func _build() -> void:
 	_join_page = _page()
 	_lobby_page = _page()
 	_settings_page = _page()
+	_credits_page = _page()
 	_build_start_page()
 	_build_join_page()
 	_build_lobby_page()
 	_build_settings_page()
+	_build_credits_page()
 
 	var footer := _label("versão %s  •  feito com Godot" % ProjectSettings.get_setting("application/config/version", "?"), 16)
 	footer.add_theme_color_override("font_color", GameTheme.TEXT_DIM)
@@ -236,6 +249,7 @@ func _build_start_page() -> void:
 	_start_page.add_child(_button("Treinar sozinho no Porto", func() -> void: _on_train_pressed(Rede.DEFAULT_MAP)))
 	_start_page.add_child(_button("Sala de treino", func() -> void: _on_train_pressed(TRAINING_ROOM)))
 	_start_page.add_child(_button("Configurações", func() -> void: _show_page(_settings_page)))
+	_start_page.add_child(_button("Créditos", func() -> void: _show_page(_credits_page)))
 	_start_page.add_child(_button("Sair do jogo", func() -> void: get_tree().quit()))
 
 
@@ -296,6 +310,20 @@ func _build_settings_page() -> void:
 	_settings = SettingsPanel.new()
 	_settings_page.add_child(_settings)
 	_settings_page.add_child(_button("Voltar", func() -> void: _show_page(_start_page)))
+
+
+func _build_credits_page() -> void:
+	var panel := PanelContainer.new()
+	_credits_page.add_child(panel)
+	var text := RichTextLabel.new()
+	text.bbcode_enabled = true
+	text.fit_content = true
+	text.text = CREDITS
+	text.add_theme_font_size_override("normal_font_size", 18)
+	text.add_theme_font_size_override("bold_font_size", 18)
+	text.add_theme_font_override("bold_font", GameTheme.bold_font())
+	panel.add_child(text)
+	_credits_page.add_child(_button("Voltar", func() -> void: _show_page(_start_page)))
 
 
 func _page() -> VBoxContainer:
