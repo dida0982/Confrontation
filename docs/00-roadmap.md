@@ -9,8 +9,8 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 6 (projeto, jogador, armas, dano, mata-mata em equipe e o primeiro mapa, o **Porto**), mais deslize, menu da mira e placar no Tab
-**Agora:** testar o mapa seguindo [05-mapa-porto.md](05-mapa-porto.md)
+**Feito:** Fases 0 a 6 (projeto, jogador, armas, dano, mata-mata em equipe e o primeiro mapa, o **Porto**), mais deslize, menu da mira, placar no Tab e minimapa
+**Agora:** testar o minimapa seguindo [06-minimapa.md](06-minimapa.md)
 **Próximo passo:** Fase 7, multiplayer 5v5
 
 ---
@@ -93,6 +93,7 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - [x] Menu no Esc: continuar, mira e sair
 - [x] Sensibilidade (mesma escala do Valorant) e tipo de mira (ponto ou cruz), salvos no computador
 - [x] Placar de abates e mortes segurando Tab
+- [x] Minimapa no canto (estilo Valorant); quem atira aparece para os inimigos por 3 s ([06-minimapa.md](06-minimapa.md))
 - [ ] Menu principal (tela inicial), criar/entrar em partida
 - [ ] Mais configurações: volume, resolução, microfone, cor e tamanho da mira
 
@@ -138,6 +139,7 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 | Tipos de mira | Ponto e cruz |
 | Esc | Abre o menu (o jogo não pausa) |
 | Tab | Mostra o placar de abates |
+| Minimapa | No canto superior esquerdo; quem atira aparece para os inimigos por alguns segundos |
 | Multiplayer | 5 contra 5 online |
 | Comunicação | Chat de voz por proximidade |
 

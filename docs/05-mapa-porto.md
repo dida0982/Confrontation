@@ -103,14 +103,9 @@ Dica: use a **grade de 1 m** do chão para medir. Cada quadradinho tem 1 metro.
 - [ ] Os nomes das áreas aparecem no chão
 - [ ] Dá para usar o A Curto do meio de cima para o Bomb A
 
-## ➡️ Próximo passo: Fase 7, multiplayer 5v5
+## ➡️ Próximo passo
 
-Com o mapa pronto, o próximo grande passo é jogar com outras pessoas:
-1. Um jogador **cria** a partida (host) e os outros **entram** pelo IP.
-2. Movimento, tiros, mortes e placar sincronizados.
-3. Até 5 jogadores por time.
-
-Peça: *"vamos fazer a fase 7, o multiplayer"*. Vai ser criado o arquivo `docs/06-multiplayer.md`.
+Depois do mapa entrou o **minimapa**: veja [06-minimapa.md](06-minimapa.md).
 
 ---
 
