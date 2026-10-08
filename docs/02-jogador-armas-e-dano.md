@@ -7,7 +7,7 @@
 ## 1. Como jogar
 
 1. Abra o projeto no Godot (veja a seção 5 do [passo 01](01-instalacao-das-ferramentas.md)).
-2. Aperte **F5** (ou o botão ▶ no canto de cima à direita).
+2. Aperte **F5** (ou o botão ▶ no canto de cima à direita) e, no menu, clique em **Sala de treino**.
 
 ### Controles
 

@@ -28,7 +28,7 @@ Os valores com nome na coluna "Onde mudar" ficam no nó **TeamDeathmatch** da ce
 
 ## 2. Como testar
 
-Aperte **F5**. Na sala de treino, você é do time **Azul** e os bonecos são do time **Vermelho**.
+Aperte **F5** e escolha **Sala de treino** ou **Treinar sozinho no Porto** no menu. No treino, você é do time **Azul** e os bonecos são do time **Vermelho**.
 
 - **Placar no topo:** Azul (esquerda), tempo, Vermelho (direita). Cada boneco que você mata vale 1 ponto para o Azul.
 - **Feed de abates** (canto superior direito): "Você matou Boneco (cabeça)", com as cores dos times.

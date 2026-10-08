@@ -65,7 +65,13 @@ Depois, vamos fazer o modo competitivo do Valorant: o Ataque planta a bomba no *
 - **Importante:** o mapa precisa ser **original**, feito por nós. Copiar exatamente um mapa do Valorant (geometria, texturas, nomes, modelos) é proibido por direitos autorais da Riot Games e poderia fazer o jogo ser derrubado se for publicado. A gente vai usar o **mesmo tipo de estrutura** (três rotas, dois bombs, mid), que é uma ideia de design de jogo e não pertence a ninguém, mas com desenho próprio.
 - Pelo mesmo motivo, não vamos usar nomes, logos, sons ou modelos do Valorant.
 
-## 6. Ferramentas (todas gratuitas)
+## 6. Como jogar
+
+1. Abra o projeto no Godot e aperte **F5**.
+2. No menu, escolha **Treinar sozinho**, **Criar partida** (você vira o host) ou **Entrar em partida** (digite o IP do host).
+3. Para jogar com amigos pela internet, veja [docs/07-multiplayer.md](docs/07-multiplayer.md).
+
+## 7. Ferramentas (todas gratuitas)
 
 | Para quê | Software | Observação |
 |---|---|---|
@@ -82,7 +88,7 @@ Depois, vamos fazer o modo competitivo do Valorant: o Ataque planta a bomba no *
 
 **Por que Godot e não Unreal ou Unity?** O Godot é 100% gratuito para sempre, sem taxa nenhuma mesmo se o jogo der dinheiro, é leve (roda em computador simples) e é mais fácil para começar. Unreal cobra royalties depois de certo faturamento e Unity tem regras de licença que já mudaram várias vezes.
 
-## 7. Estrutura de pastas
+## 8. Estrutura de pastas
 
 ```
 jogo de fps/
@@ -94,7 +100,8 @@ jogo de fps/
 │   ├── 03-mata-mata-em-equipe.md
 │   ├── 04-deslize-menu-e-placar.md
 │   ├── 05-mapa-porto.md
-│   ├── 06-minimapa.md                      ← o que foi feito por último
+│   ├── 06-minimapa.md
+│   ├── 07-multiplayer.md                   ← o que foi feito por último
 │   └── img/                                ← planta e fotos dos mapas
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)
     ├── scenes/      ← cenas (mapas/, sala de treino, jogador, boneco de treino)
@@ -103,7 +110,7 @@ jogo de fps/
     └── materials/   ← materiais (grade de 1 metro do greybox)
 ```
 
-## 8. Como continuar
+## 9. Como continuar
 
 1. Abra [docs/00-roadmap.md](docs/00-roadmap.md) para ver todas as fases e em qual estamos.
 2. Siga o arquivo do próximo passo indicado lá.

@@ -1,6 +1,6 @@
 # Passo 05: Mapa Porto (greybox)
 
-**O que foi feito:** a Fase 6 do [roadmap](00-roadmap.md). O primeiro mapa do jogo, o **Porto**, já abre com **F5**.
+**O que foi feito:** a Fase 6 do [roadmap](00-roadmap.md). O primeiro mapa do jogo, o **Porto**.
 
 ![Planta do mapa Porto](img/mapa-porto.svg)
 
@@ -61,7 +61,7 @@ Os nomes aparecem **escritos no chão** do jogo.
 
 ## 3. Como jogar no mapa
 
-1. Aperte **F5**: o jogo abre no Porto. Você nasce na **Base Azul**.
+1. Aperte **F5** e clique em **Treinar sozinho no Porto** (ou abra `scenes/mapas/porto.tscn` e aperte **F6**). Você nasce na **Base Azul**.
 2. Há **8 bonecos** do time Vermelho espalhados: nos bombs (2 em cada, um deles andando), no pátio, no meio de cima e nas rotas.
 3. Tudo continua valendo: placar, Tab, Esc, deslize etc.
 
@@ -97,7 +97,7 @@ Dica: use a **grade de 1 m** do chão para medir. Cada quadradinho tem 1 metro.
 
 ## ✅ Checklist desta etapa
 
-- [ ] O jogo abre no Porto com F5
+- [ ] Consigo jogar no Porto (menu → Treinar sozinho no Porto)
 - [ ] Consigo ir da Base Azul aos dois bombs pelas três rotas
 - [ ] Consigo subir pulando nas caixas de 1 m e nas plataformas dos bombs
 - [ ] Os nomes das áreas aparecem no chão

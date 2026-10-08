@@ -9,9 +9,9 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 6 (projeto, jogador, armas, dano, mata-mata em equipe e o primeiro mapa, o **Porto**), mais deslize, menu da mira, placar no Tab e minimapa
-**Agora:** testar o minimapa seguindo [06-minimapa.md](06-minimapa.md)
-**Próximo passo:** Fase 7, multiplayer 5v5
+**Feito:** Fases 0 a 7 (projeto, jogador, armas, dano, mata-mata em equipe, mapa Porto e **multiplayer 5v5**), mais deslize, menu da mira, placar no Tab e minimapa
+**Agora:** jogar com amigos seguindo [07-multiplayer.md](07-multiplayer.md)
+**Próximo passo:** Fase 8, chat de voz por proximidade
 
 ---
 
@@ -72,15 +72,19 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - Arquivo: [05-mapa-porto.md](05-mapa-porto.md)
 - [ ] (Depois) Mais mapas
 
-### Fase 7: Multiplayer 5v5 ⬅️ PRÓXIMA
+### Fase 7: Multiplayer 5v5 ✅
 
-- [ ] Criar e entrar em partida (host / cliente) na rede local
-- [ ] Sincronizar movimento, tiros, mortes e placar
-- [ ] Servidor confere os acertos (evita trapaça básica)
-- [ ] Lobby simples: escolher nome e entrar num time (até 5 por time)
-- [ ] Testar com amigos pela internet (servidor dedicado ou ferramentas grátis)
+- [x] Menu principal: nome, criar partida (host), entrar pelo IP, treinar sozinho
+- [x] Sala (lobby) com os times Azul e Vermelho, até 5 por time, troca de time
+- [x] Movimento, tiros, mortes, placar, renascimento e minimapa sincronizados
+- [x] Servidor (host) confere os acertos: cadência, alcance, linha de visão, alvo vivo e inimigo
+- [x] Host pode voltar todos para a sala e começar outra partida
+- [x] Testado com 2 cópias do jogo no mesmo computador
+- Arquivo: [07-multiplayer.md](07-multiplayer.md)
+- [ ] (Depois) Testar com amigos pela internet (Radmin VPN, ZeroTier ou Tailscale)
+- [ ] (Depois) Entrar no meio da partida, servidor dedicado, compensação de atraso
 
-### Fase 8: Chat de voz por proximidade
+### Fase 8: Chat de voz por proximidade ⬅️ PRÓXIMA
 
 - [ ] Capturar o microfone (`AudioEffectCapture`) com botão de falar (push-to-talk) ou voz aberta
 - [ ] Comprimir a voz com codec **Opus** (addon gratuito) para enviar pela rede
@@ -140,7 +144,7 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 | Esc | Abre o menu (o jogo não pausa) |
 | Tab | Mostra o placar de abates |
 | Minimapa | No canto superior esquerdo; quem atira aparece para os inimigos por alguns segundos |
-| Multiplayer | 5 contra 5 online |
+| Multiplayer | 5 contra 5 online; um jogador cria a partida (host) e os outros entram pelo IP |
 | Comunicação | Chat de voz por proximidade |
 
 ## Decisões pendentes
@@ -150,4 +154,3 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 | Voz: botão para falar ou microfone sempre aberto? | Botão (ex.: V), com opção de voz aberta | Fase 8 |
 | Alcance da voz | Uns 25 metros, abafada atrás de paredes | Fase 8 |
 | Inimigos ouvem sua voz? | Sim (proximidade vale para todos), o que dá estratégia | Fase 8 |
-| Onde roda o servidor | Um jogador hospeda; servidor dedicado depois | Fase 7 |

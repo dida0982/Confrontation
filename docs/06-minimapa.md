@@ -24,7 +24,7 @@ O minimapa fica com o **norte para cima** (a base Vermelha em cima e a Azul emba
 
 ## 2. Como testar
 
-1. Aperte **F5** (abre o Porto).
+1. Aperte **F5** e clique em **Treinar sozinho no Porto**.
 2. Os bonecos **2** (Bomb A), **4** (Bomb B) e **5** (pátio do meio) **fingem que atiram** a cada 4, 5 e 6 segundos. Eles piscam em laranja, não causam dano e aparecem em vermelho no minimapa.
 3. Ande pelo mapa e veja a seta e o cone acompanharem você.
 
@@ -62,4 +62,4 @@ Essa opção de fingir tiro serve **só para teste**. Ela fica no Inspetor do bo
 
 ## ➡️ Próximo passo: Fase 7, multiplayer 5v5
 
-Peça: *"vamos fazer a fase 7, o multiplayer"*. Vai ser criado o arquivo `docs/07-multiplayer.md`.
+Feito! Veja [07-multiplayer.md](07-multiplayer.md).
