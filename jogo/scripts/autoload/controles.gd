@@ -31,6 +31,7 @@ const BOTOES_MOUSE := {
 
 
 func _ready() -> void:
+	GameTheme.apply()
 	for action in TECLAS:
 		_criar_acao(action)
 		for key in TECLAS[action]:
@@ -47,11 +48,7 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("toggle_fullscreen"):
-		var window := get_window()
-		if window.mode == Window.MODE_FULLSCREEN:
-			window.mode = Window.MODE_WINDOWED
-		else:
-			window.mode = Window.MODE_FULLSCREEN
+		Configuracoes.toggle_fullscreen()
 
 
 func _criar_acao(action: String) -> void:

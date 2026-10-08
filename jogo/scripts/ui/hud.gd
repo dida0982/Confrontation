@@ -145,8 +145,9 @@ func _process(delta: float) -> void:
 		_ammo_label.text = "RECARREGANDO..."
 	else:
 		_ammo_label.text = "%d / ∞" % weapons.ammo_in_magazine()
-	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  Tab placar  |  V falar  |  F11 tela cheia%s" % [
-		Engine.get_frames_per_second(), "  |  F8 morrer (teste)" if OS.is_debug_build() else ""]
+	_info_label.text = "%s[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  Tab placar  |  V falar  |  F11 tela cheia%s" % [
+		"FPS %d\n" % Engine.get_frames_per_second() if Configuracoes.show_fps else "",
+		"  |  F8 morrer (teste)" if OS.is_debug_build() else ""]
 	_center_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not _is_menu_open()
 
 	_update_match_info()
@@ -283,7 +284,7 @@ func _draw_crosshair() -> void:
 	if weapons.is_scoped or player.health.is_dead:
 		return
 
-	Crosshair.draw(_crosshair, center, Configuracoes.crosshair_style)
+	Crosshair.draw(_crosshair, center)
 
 
 func _draw_scope() -> void:
