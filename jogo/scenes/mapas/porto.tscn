@@ -2,9 +2,14 @@
 
 [ext_resource type="PackedScene" path="res://scenes/training_dummy.tscn" id="2_dummy"]
 [ext_resource type="Script" path="res://scripts/ui/hud.gd" id="3_hud"]
-[ext_resource type="Shader" path="res://materials/grade.gdshader" id="4_grid"]
 [ext_resource type="Script" path="res://scripts/match/team_deathmatch.gd" id="5_tdm"]
 [ext_resource type="Script" path="res://scripts/ui/pause_menu.gd" id="6_menu"]
+[ext_resource type="Texture2D" path="res://texturas/concrete_floor_worn_001_diff.jpg" id="7_chao"]
+[ext_resource type="Texture2D" path="res://texturas/concrete_floor_worn_001_nor.jpg" id="8_chao_n"]
+[ext_resource type="Texture2D" path="res://texturas/beige_wall_001_diff.jpg" id="9_parede"]
+[ext_resource type="Texture2D" path="res://texturas/beige_wall_001_nor.jpg" id="10_parede_n"]
+[ext_resource type="Texture2D" path="res://texturas/brown_planks_07_diff.jpg" id="11_madeira"]
+[ext_resource type="Texture2D" path="res://texturas/brown_planks_07_nor.jpg" id="12_madeira_n"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_material"]
 
@@ -17,40 +22,75 @@ sky = SubResource("sky")
 tonemap_mode = 2
 ssao_enabled = true
 
-[sub_resource type="ShaderMaterial" id="mat_floor"]
-shader = ExtResource("4_grid")
-shader_parameter/base_color = Color(0.42, 0.43, 0.46, 1)
-shader_parameter/line_color = Color(0.33, 0.34, 0.37, 1)
+[sub_resource type="StandardMaterial3D" id="mat_floor"]
+albedo_color = Color(0.85, 0.85, 0.88, 1)
+albedo_texture = ExtResource("7_chao")
+roughness = 0.9
+normal_enabled = true
+normal_texture = ExtResource("8_chao_n")
+uv1_scale = Vector3(0.4, 0.4, 0.4)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
-[sub_resource type="ShaderMaterial" id="mat_wall"]
-shader = ExtResource("4_grid")
-shader_parameter/base_color = Color(0.78, 0.75, 0.68, 1)
-shader_parameter/line_color = Color(0.66, 0.63, 0.57, 1)
+[sub_resource type="StandardMaterial3D" id="mat_wall"]
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("9_parede")
+roughness = 0.9
+normal_enabled = true
+normal_texture = ExtResource("10_parede_n")
+uv1_scale = Vector3(0.35, 0.35, 0.35)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
-[sub_resource type="ShaderMaterial" id="mat_cover"]
-shader = ExtResource("4_grid")
-shader_parameter/base_color = Color(0.3, 0.55, 0.7, 1)
-shader_parameter/line_color = Color(0.22, 0.42, 0.55, 1)
+[sub_resource type="StandardMaterial3D" id="mat_cover"]
+albedo_color = Color(1, 1, 1, 1)
+albedo_texture = ExtResource("11_madeira")
+roughness = 0.9
+normal_enabled = true
+normal_texture = ExtResource("12_madeira_n")
+uv1_scale = Vector3(0.6, 0.6, 0.6)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
-[sub_resource type="ShaderMaterial" id="mat_zone_a"]
-shader = ExtResource("4_grid")
-shader_parameter/base_color = Color(0.75, 0.5, 0.3, 1)
-shader_parameter/line_color = Color(0.62, 0.4, 0.24, 1)
+[sub_resource type="StandardMaterial3D" id="mat_zone_a"]
+albedo_color = Color(1.0, 0.72, 0.45, 1)
+albedo_texture = ExtResource("7_chao")
+roughness = 0.9
+normal_enabled = true
+normal_texture = ExtResource("8_chao_n")
+uv1_scale = Vector3(0.4, 0.4, 0.4)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
-[sub_resource type="ShaderMaterial" id="mat_zone_b"]
-shader = ExtResource("4_grid")
-shader_parameter/base_color = Color(0.35, 0.65, 0.55, 1)
-shader_parameter/line_color = Color(0.27, 0.52, 0.44, 1)
+[sub_resource type="StandardMaterial3D" id="mat_zone_b"]
+albedo_color = Color(0.55, 0.95, 0.8, 1)
+albedo_texture = ExtResource("7_chao")
+roughness = 0.9
+normal_enabled = true
+normal_texture = ExtResource("8_chao_n")
+uv1_scale = Vector3(0.4, 0.4, 0.4)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
-[sub_resource type="ShaderMaterial" id="mat_zone_azul"]
-shader = ExtResource("4_grid")
-shader_parameter/base_color = Color(0.3, 0.45, 0.75, 1)
-shader_parameter/line_color = Color(0.24, 0.36, 0.62, 1)
+[sub_resource type="StandardMaterial3D" id="mat_zone_azul"]
+albedo_color = Color(0.55, 0.7, 1.0, 1)
+albedo_texture = ExtResource("7_chao")
+roughness = 0.9
+normal_enabled = true
+normal_texture = ExtResource("8_chao_n")
+uv1_scale = Vector3(0.4, 0.4, 0.4)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
-[sub_resource type="ShaderMaterial" id="mat_zone_vermelho"]
-shader = ExtResource("4_grid")
-shader_parameter/base_color = Color(0.75, 0.32, 0.3, 1)
-shader_parameter/line_color = Color(0.62, 0.25, 0.24, 1)
+[sub_resource type="StandardMaterial3D" id="mat_zone_vermelho"]
+albedo_color = Color(1.0, 0.55, 0.5, 1)
+albedo_texture = ExtResource("7_chao")
+roughness = 0.9
+normal_enabled = true
+normal_texture = ExtResource("8_chao_n")
+uv1_scale = Vector3(0.4, 0.4, 0.4)
+uv1_triplanar = true
+uv1_world_triplanar = true
 
 [node name="Porto" type="Node3D"]
 
