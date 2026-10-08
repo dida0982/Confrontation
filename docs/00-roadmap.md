@@ -9,9 +9,9 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 8 (projeto, jogador, armas, dano, mata-mata em equipe, mapa Porto, multiplayer 5v5 e **chat de voz por proximidade**), mais deslize, menu da mira, placar no Tab, minimapa e download do jogo (.exe)
-**Agora:** testar a voz seguindo [09-chat-de-voz.md](09-chat-de-voz.md)
-**Próximo passo:** Fase 9 (interface) ou Fase 10 (arte e som)
+**Feito:** Fases 0 a 10 (jogo completo jogável em rede, com voz, interface nova, personagem e armas 3D, texturas e sons)
+**Agora:** testar seguindo [10-interface-arte-e-som.md](10-interface-arte-e-som.md) e publicar a versão 0.2.0
+**Próximo passo:** Fase 11, polimento e distribuição
 
 ---
 
@@ -95,21 +95,22 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - Arquivo: [09-chat-de-voz.md](09-chat-de-voz.md)
 - [ ] (Depois) Silenciar um jogador, rádio só do time, codec Opus
 
-### Fase 9: Interface (menus)
+### Fase 9: Interface ✅
 
-- [x] Menu no Esc: continuar, mira e sair
-- [x] Sensibilidade (mesma escala do Valorant) e tipo de mira (ponto ou cruz), salvos no computador
-- [x] Placar de abates e mortes segurando Tab
-- [x] Minimapa no canto (estilo Valorant); quem atira aparece para os inimigos por 3 s ([06-minimapa.md](06-minimapa.md))
-- [ ] Menu principal (tela inicial), criar/entrar em partida
-- [ ] Mais configurações: volume, resolução, microfone, cor e tamanho da mira
+- [x] Menu no Esc: continuar, configurações e sair
+- [x] Placar de abates e mortes segurando Tab; minimapa
+- [x] Tela inicial com o mapa em 3D ao fundo e tema visual próprio (fonte Rajdhani)
+- [x] Configurações em abas: mira (cor, tamanho, espessura, espaço, contorno), vídeo (modo de tela, resolução, VSync, FPS, qualidade, sombras), áudio e voz
+- [x] Tela de créditos
+- Arquivo: [10-interface-arte-e-som.md](10-interface-arte-e-som.md)
 
-### Fase 10: Arte e som
+### Fase 10: Arte e som ✅
 
-- [ ] Modelo do personagem (Blender ou Mixamo) com animações, cores dos times
-- [ ] Modelos das 3 armas
-- [ ] Texturas e iluminação do mapa
-- [ ] Sons: tiros, passos (importantíssimo num jogo tático), recarga
+- [x] Personagem SWAT animado (Quaternius, CC0) com contorno na cor do time
+- [x] Modelos das 3 armas (em primeira pessoa e na mão dos outros) e clarão no cano
+- [x] Texturas no mapa Porto (Poly Haven, CC0)
+- [x] Sons de tiro (3D para os outros), passos, recarga, troca de arma e acerto
+- [ ] (Depois) Animação de recarga, sons por tipo de chão, efeitos de impacto (faíscas, poeira)
 
 ### Fase 11: Polimento e distribuição
 

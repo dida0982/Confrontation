@@ -4,6 +4,8 @@
 # Arquivos binários
 *.png binary
 *.jpg binary
+*.jpeg binary
+*.webp binary
 *.glb binary
 *.blend binary
 *.wav binary

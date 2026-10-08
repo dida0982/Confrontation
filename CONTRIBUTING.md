@@ -61,6 +61,12 @@ docs(roadmap): marca fase 5 como concluída
 - Explique o **porquê** no corpo quando não for óbvio.
 - Não misture assuntos: ajuste de arma e mudança de mapa vão em commits separados.
 
+## Recursos (modelos, texturas, sons, fontes)
+
+- Use só recursos **gratuitos** com licença que permita usar no jogo (de preferência **CC0**).
+- **Nunca** use arquivos tirados de outros jogos (ex.: modelos ou mapas do Valorant).
+- Todo recurso novo entra no [CREDITOS.md](CREDITOS.md) com autor, licença e link. Se a licença exigir crédito (CC-BY), coloque também na tela de créditos (`scripts/ui/main_menu.gd`).
+
 ## Estilo de código (GDScript)
 
 - Siga o [guia de estilo oficial do GDScript](https://docs.godotengine.org/pt-br/4.x/tutorials/scripting/gdscript/gdscript_styleguide.html).

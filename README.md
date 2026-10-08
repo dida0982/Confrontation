@@ -108,13 +108,18 @@ jogo de fps/
 │   ├── 06-minimapa.md
 │   ├── 07-multiplayer.md
 │   ├── 08-gerar-e-publicar-o-jogo.md
-│   ├── 09-chat-de-voz.md                   ← o que foi feito por último
+│   ├── 09-chat-de-voz.md
+│   ├── 10-interface-arte-e-som.md          ← o que foi feito por último
 │   └── img/                                ← planta e fotos dos mapas
 ├── distribuicao/    ← LEIA-ME.txt que vai junto no download do jogo
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)
-    ├── scenes/      ← cenas (mapas/, sala de treino, jogador, boneco de treino)
+    ├── scenes/      ← cenas (mapas/, armas/, personagem, sala de treino, jogador, boneco)
     ├── scripts/     ← código (GDScript); scripts/match/ tem as regras da partida
     ├── weapons/     ← números de cada arma (fuzil, pistola, sniper)
+    ├── modelos/     ← personagem e armas 3D (.glb)
+    ├── texturas/    ← texturas do mapa
+    ├── sons/        ← tiros, passos, recarga, acerto
+    ├── fontes/      ← fonte Rajdhani
     └── materials/   ← materiais (grade de 1 metro do greybox)
 ```
 
@@ -125,3 +130,7 @@ jogo de fps/
 3. A cada fase concluída, um novo arquivo é criado em `docs/` com o passo a passo do que foi feito e do que vem depois.
 
 Quer ajudar no projeto? Leia o [CONTRIBUTING.md](CONTRIBUTING.md) (fluxo de trabalho e padrão de commits).
+
+## Créditos
+
+Personagem e armas: Quaternius (CC0). Texturas: Poly Haven (CC0). Passos e impactos: Kenney (CC0). Sons de tiro: Vincent Sevedge (CC-BY 3.0). Fonte: Rajdhani (OFL). Lista completa em [CREDITOS.md](CREDITOS.md).

@@ -97,7 +97,9 @@ O teste com duas pessoas conversando de verdade fica com você.
 
 ## ➡️ Próximo passo
 
-Pelo [roadmap](00-roadmap.md), as próximas fases são:
+Feito: interface, arte e som estão em [10-interface-arte-e-som.md](10-interface-arte-e-som.md).
+
+Pelo [roadmap](00-roadmap.md), as fases eram:
 - **Fase 9, interface:** tela inicial mais bonita, configurações de vídeo e áudio, mira com cor e tamanho;
 - **Fase 10, arte e som:** modelos de personagem e armas, texturas e **sons de tiro e passos**.
 

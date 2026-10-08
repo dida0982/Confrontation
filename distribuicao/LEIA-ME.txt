@@ -35,4 +35,11 @@ WASD andar | Shift correr | Ctrl agachar (correndo: desliza) | Espaço pular
 Botão esquerdo atirar | Botão direito zoom da sniper | R recarregar
 1 Fuzil | 2 Pistola | 3 Sniper | Tab placar | Esc menu | F11 tela cheia
 V (segurar) falar no chat de voz: quem está perto ouve, inclusive inimigos.
-Use fone de ouvido. Ajuste o microfone em Esc > Voz.
+Use fone de ouvido. Ajuste o microfone em Esc > Configurações > Voz.
+
+CRÉDITOS
+Personagem e armas: Quaternius (CC0). Texturas: Poly Haven (CC0).
+Passos e impactos: Kenney - www.kenney.nl (CC0).
+Sons de tiro: "Gunshot Sounds" por Vincent Sevedge (CC-BY 3.0).
+Fonte: Rajdhani, Indian Type Foundry (SIL Open Font License).
+Motor: Godot Engine (MIT).
