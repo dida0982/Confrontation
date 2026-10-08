@@ -11,8 +11,9 @@ extends CharacterBody3D
 ## - nos outros computadores ele mostra o corpo 3D animado (CharacterModel),
 ##   com contorno na cor do time, e segue as variáveis net_* com suavização.
 ##
-## Sons: passos (silencioso agachado ou deslizando) e, nos outros computadores,
-## o tiro de quem atirou (a arma local toca o próprio som no WeaponManager).
+## Sons: passos (silencioso agachado ou deslizando), pulo, aterrissagem e
+## deslize e, nos outros computadores, o tiro de quem atirou (a arma local toca
+## o próprio som no WeaponManager).
 
 const STAND_HEIGHT := 1.8
 const CROUCH_HEIGHT := 1.2
@@ -30,6 +31,11 @@ const FOOTSTEP_SOUNDS := [
 	preload("res://sons/passo_0.ogg"), preload("res://sons/passo_1.ogg"), preload("res://sons/passo_2.ogg"),
 	preload("res://sons/passo_3.ogg"), preload("res://sons/passo_4.ogg"),
 ]
+const JUMP_SOUND := preload("res://sons/pulo.ogg")
+const LAND_SOUND := preload("res://sons/aterrissagem.ogg")
+const SLIDE_SOUND := preload("res://sons/deslize.wav")
+## Velocidade de queda (m/s) a partir da qual a aterrissagem faz barulho.
+const LAND_SOUND_MIN_SPEED := 4.0
 const SHOT_SOUNDS := [
 	preload("res://sons/tiro_fuzil.wav"), preload("res://sons/tiro_pistola.wav"), preload("res://sons/tiro_sniper.wav"),
 ]
@@ -89,6 +95,16 @@ var net_position := Vector3.ZERO
 var net_yaw := 0.0
 var net_crouching := false
 var net_weapon := 0
+# Contadores de pulo, aterrissagem e deslize: quando mudam, os outros tocam o som.
+var net_jumps := 0
+var net_landings := 0
+var net_slides := 0
+
+var _heard_jumps := 0
+var _heard_landings := 0
+var _heard_slides := 0
+## Tremor da câmera (0 a 1), por exemplo num TRIPLE KILL.
+var _shake := 0.0
 
 var _step_distance := 0.0
 ## Velocidade estimada dos outros jogadores (para animação e passos).
@@ -112,6 +128,7 @@ var _slide_queued := false
 @onready var body_visual: CharacterModel = $Corpo
 @onready var footsteps: AudioStreamPlayer3D = $Passos
 @onready var shot_audio: AudioStreamPlayer3D = $SomTiro
+@onready var movement_audio: AudioStreamPlayer3D = $SomMovimento
 @onready var speaking_label: Label3D = $FalandoLabel
 
 
@@ -139,6 +156,10 @@ func _ready() -> void:
 		weapons.set_process(false)
 		weapons.set_process_unhandled_input(false)
 		set_process_unhandled_input(false)
+
+	_heard_jumps = net_jumps
+	_heard_landings = net_landings
+	_heard_slides = net_slides
 
 	if spawn_protection_on_ready > 0.0:
 		health.invulnerable = true
@@ -220,6 +241,10 @@ func _process(delta: float) -> void:
 		speaking_label.visible = not health.is_dead and Voz.is_speaking(name.to_int())
 		return
 	camera.rotation.x = look_pitch
+	if _shake > 0.0:
+		_shake = move_toward(_shake, 0.0, delta * 2.0)
+		camera.h_offset = randf_range(-1.0, 1.0) * _shake * 0.035
+		camera.v_offset = randf_range(-1.0, 1.0) * _shake * 0.035
 	var target_tilt := deg_to_rad(slide_camera_tilt) if is_sliding else 0.0
 	camera.rotation.z = lerpf(camera.rotation.z, target_tilt, minf(10.0 * delta, 1.0))
 
@@ -249,6 +274,8 @@ func _physics_process(delta: float) -> void:
 		velocity.y -= gravity * delta
 	elif active and Input.is_action_just_pressed("jump"):
 		velocity.y = jump_velocity
+		net_jumps += 1
+		_play_movement_sound(JUMP_SOUND, -4.0)
 		# Pular no meio do deslize mantém o embalo.
 		_end_slide()
 
@@ -270,7 +297,12 @@ func _physics_process(delta: float) -> void:
 
 	velocity.x = horizontal.x
 	velocity.z = horizontal.z
+	var was_on_floor := is_on_floor()
+	var fall_speed := -velocity.y
 	move_and_slide()
+	if not was_on_floor and is_on_floor() and fall_speed > LAND_SOUND_MIN_SPEED:
+		net_landings += 1
+		_play_movement_sound(LAND_SOUND, clampf(-12.0 + fall_speed, -8.0, 2.0))
 
 	if is_sliding:
 		_update_slide_after_move()
@@ -280,6 +312,32 @@ func _physics_process(delta: float) -> void:
 	net_crouching = is_crouching
 	net_weapon = weapons.current_index
 	_update_footsteps(_horizontal_speed(), is_on_floor() and not is_sliding, delta)
+
+
+## Faz a câmera tremer um pouco (não mexe na mira).
+func shake(strength: float) -> void:
+	_shake = maxf(_shake, strength)
+
+
+## Pulo, aterrissagem e deslize (os próprios soam mais baixo).
+func _play_movement_sound(sound: AudioStream, volume_db: float) -> void:
+	movement_audio.stream = sound
+	movement_audio.volume_db = volume_db - (6.0 if is_local() else 0.0)
+	movement_audio.pitch_scale = randf_range(0.94, 1.06)
+	movement_audio.play()
+
+
+## Nos outros computadores: toca os sons de movimento quando os contadores mudam.
+func _play_remote_movement_sounds() -> void:
+	if net_jumps != _heard_jumps:
+		_heard_jumps = net_jumps
+		_play_movement_sound(JUMP_SOUND, -4.0)
+	if net_landings != _heard_landings:
+		_heard_landings = net_landings
+		_play_movement_sound(LAND_SOUND, -2.0)
+	if net_slides != _heard_slides:
+		_heard_slides = net_slides
+		_play_movement_sound(SLIDE_SOUND, 0.0)
 
 
 ## Nos outros computadores: toca o tiro desta arma e o clarão no cano.
@@ -317,6 +375,7 @@ func _follow_network(delta: float) -> void:
 	rotation.y = lerp_angle(rotation.y, net_yaw, minf(REMOTE_SMOOTHING * delta, 1.0))
 	if health.is_dead:
 		return
+	_play_remote_movement_sounds()
 	_remote_velocity = _remote_velocity.lerp((global_position - before) / maxf(delta, 0.0001), minf(10.0 * delta, 1.0))
 	var flat_speed := Vector2(_remote_velocity.x, _remote_velocity.z).length()
 	body_visual.set_weapon(net_weapon)
@@ -374,6 +433,8 @@ func _start_slide() -> void:
 	is_sliding = true
 	_slide_direction = horizontal.normalized()
 	_slide_speed = minf(horizontal.length() + slide_boost, slide_max_speed)
+	net_slides += 1
+	_play_movement_sound(SLIDE_SOUND, 0.0)
 	if not is_crouching:
 		_set_crouch(true)
 
