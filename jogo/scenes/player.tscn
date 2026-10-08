@@ -41,6 +41,15 @@ properties/2/replication_mode = 2
 properties/3/path = NodePath(".:net_weapon")
 properties/3/spawn = true
 properties/3/replication_mode = 2
+properties/4/path = NodePath(".:net_jumps")
+properties/4/spawn = true
+properties/4/replication_mode = 2
+properties/5/path = NodePath(".:net_landings")
+properties/5/spawn = true
+properties/5/replication_mode = 2
+properties/6/path = NodePath(".:net_slides")
+properties/6/spawn = true
+properties/6/replication_mode = 2
 
 [node name="Player" type="CharacterBody3D" groups=["combatants"]]
 collision_layer = 2
@@ -116,6 +125,13 @@ volume_db = -8.0
 unit_size = 12.0
 max_distance = 150.0
 max_polyphony = 4
+bus = &"Efeitos"
+
+[node name="SomMovimento" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 0.3, 0)
+unit_size = 4.0
+max_distance = 40.0
+max_polyphony = 2
 bus = &"Efeitos"
 
 [node name="SyncMovimento" type="MultiplayerSynchronizer" parent="."]
