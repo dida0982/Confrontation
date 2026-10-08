@@ -41,6 +41,7 @@ var _end_title: Label
 var _end_subtitle: Label
 var _killfeed: RichTextLabel
 var _scoreboard: Scoreboard
+var _announcer: KillAnnouncer
 var _minimap: Minimap
 ## Cada item: {"text": String, "time": float}
 var _killfeed_entries: Array[Dictionary] = []
@@ -52,6 +53,7 @@ func _ready() -> void:
 	match_mode = get_node(match_path) as TeamDeathmatch
 	match_mode.kill_registered.connect(_on_kill_registered)
 	match_mode.local_player_spawned.connect(_bind_player)
+	match_mode.match_ended.connect(_on_match_ended)
 
 	_root = Control.new()
 	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -127,6 +129,12 @@ func _bind_player(local_player: Player) -> void:
 	_scoreboard = Scoreboard.new(match_mode, player)
 	_scoreboard.visible = false
 	_root.add_child(_scoreboard)
+
+	_announcer = KillAnnouncer.new()
+	_root.add_child(_announcer)
+	_announcer.shake_requested.connect(player.shake)
+	player.health.died.connect(func(_killer: Node, _headshot: bool) -> void: _announcer.reset_streak())
+	_announcer.announce("FIGHT!", "", GameTheme.ACCENT, "", "res://sons/voz_fight.ogg")
 
 
 func _process(delta: float) -> void:
@@ -252,10 +260,11 @@ func _update_killfeed(delta: float) -> void:
 
 
 func _on_kill_registered(killer: Node, victim: Node, headshot: bool) -> void:
-	# O servidor confirmou que você matou: marcador vermelho.
-	if player != null and killer == player:
+	# O servidor confirmou que você matou: marcador vermelho e anúncio na tela.
+	if player != null and killer == player and victim != player:
 		_hit_marker_timer = HIT_MARKER_TIME
 		_hit_marker_color = Color.RED
+		_announcer.register_kill(headshot)
 	var victim_text := _colored_name(victim)
 	var text: String
 	if killer == null or killer == victim:
@@ -346,3 +355,20 @@ func _play_hit_sound(sound: AudioStream, volume_db: float) -> void:
 	add_child(audio)
 	audio.finished.connect(audio.queue_free)
 	audio.play()
+
+
+## Locutor no fim da partida: vitória, derrota, empate ou vitória sem morrer.
+func _on_match_ended(winner: int) -> void:
+	if player == null or _announcer == null:
+		return
+	var voice := "res://sons/voz_tie.ogg"
+	if winner == player.health.team:
+		var flawless: bool = match_mode.stats_of(player)["deaths"] == 0
+		voice = "res://sons/voz_flawless_victory.ogg" if flawless else "res://sons/voz_you_win.ogg"
+	elif winner != -1:
+		voice = "res://sons/voz_you_lose.ogg"
+	var voice_player := AudioStreamPlayer.new()
+	voice_player.stream = load(voice)
+	voice_player.bus = GameSettings.EFFECTS_BUS
+	add_child(voice_player)
+	voice_player.play()
