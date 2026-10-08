@@ -125,6 +125,9 @@ func _build() -> void:
 	content.add_theme_constant_override("separation", 14)
 	panel.add_child(content)
 	content.add_child(_title("CONFRONTATION", 40))
+	var version := _title("versão %s" % ProjectSettings.get_setting("application/config/version", "?"), 14)
+	version.add_theme_color_override("font_color", Color(1, 1, 1, 0.5))
+	content.add_child(version)
 	_message_label = _label("", 16)
 	_message_label.add_theme_color_override("font_color", Color(1.0, 0.75, 0.4))
 	_message_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
