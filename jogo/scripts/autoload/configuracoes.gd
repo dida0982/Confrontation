@@ -1,6 +1,6 @@
 class_name GameSettings
 extends Node
-## Configurações do jogador (sensibilidade e mira).
+## Configurações do jogador (sensibilidade, mira, nome e último IP usado).
 ## Fica carregado o jogo todo como "Configuracoes" e salva tudo num arquivo
 ## no computador do jogador, para continuar igual na próxima vez que abrir.
 
@@ -17,6 +17,8 @@ const MAX_SENSITIVITY := 5.0
 
 var sensitivity := 2.0
 var crosshair_style := CrosshairStyle.CRUZ
+var player_name := ""
+var last_address := "127.0.0.1"
 
 
 func _ready() -> void:
@@ -24,6 +26,8 @@ func _ready() -> void:
 	if file.load(FILE_PATH) == OK:
 		sensitivity = clampf(file.get_value("mouse", "sensibilidade", sensitivity), MIN_SENSITIVITY, MAX_SENSITIVITY)
 		crosshair_style = file.get_value("mira", "tipo", crosshair_style)
+		player_name = file.get_value("jogador", "nome", player_name)
+		last_address = file.get_value("rede", "ultimo_ip", last_address)
 
 
 ## Quanto a câmera gira (em radianos) para cada pixel que o mouse anda.
@@ -41,9 +45,21 @@ func set_crosshair_style(style: CrosshairStyle) -> void:
 	_save()
 
 
+func set_player_name(value: String) -> void:
+	player_name = value
+	_save()
+
+
+func set_last_address(value: String) -> void:
+	last_address = value
+	_save()
+
+
 func _save() -> void:
 	var file := ConfigFile.new()
 	file.set_value("mouse", "sensibilidade", sensitivity)
 	file.set_value("mira", "tipo", crosshair_style)
+	file.set_value("jogador", "nome", player_name)
+	file.set_value("rede", "ultimo_ip", last_address)
 	file.save(FILE_PATH)
 	changed.emit()

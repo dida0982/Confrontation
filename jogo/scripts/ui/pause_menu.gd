@@ -3,7 +3,8 @@ extends CanvasLayer
 ## mas o jogador para de andar e atirar enquanto o menu está aberto.
 ##
 ## Páginas:
-## - principal: Continuar, Mira, Sair do jogo
+## - principal: Continuar, Mira, Voltar todos para a sala (só o host),
+##   Sair da partida, Sair do jogo
 ## - mira: sensibilidade do mouse e tipo de mira (ponto ou cruz), com prévia
 
 const PANEL_WIDTH := 460.0
@@ -104,6 +105,9 @@ func _build() -> void:
 
 	_main_page.add_child(_button("Continuar", func() -> void: _set_open(false)))
 	_main_page.add_child(_button("Mira", func() -> void: _show_page(_crosshair_page)))
+	if Rede.is_online() and multiplayer.is_server():
+		_main_page.add_child(_button("Voltar todos para a sala", func() -> void: Rede.return_to_lobby()))
+	_main_page.add_child(_button("Sair da partida", func() -> void: Rede.leave()))
 	_main_page.add_child(_button("Sair do jogo", func() -> void: get_tree().quit()))
 	_build_crosshair_page()
 
