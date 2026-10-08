@@ -11,6 +11,8 @@ const HIT_MARKER_TIME := 0.15
 const KILLFEED_TIME := 5.0
 const KILLFEED_MAX := 5
 const KILLFEED_WIDTH := 460.0
+const HIT_SOUND := preload("res://sons/acerto.ogg")
+const HEADSHOT_SOUND := preload("res://sons/acerto_cabeca.ogg")
 
 @export var match_path: NodePath
 ## Nó com as caixas do mapa (o minimapa é desenhado a partir delas).
@@ -307,6 +309,7 @@ func _is_menu_open() -> bool:
 
 
 func _on_hit_confirmed(headshot: bool, killed: bool) -> void:
+	_play_hit_sound(HEADSHOT_SOUND if headshot else HIT_SOUND, 0.0 if headshot else -4.0)
 	_hit_marker_timer = HIT_MARKER_TIME
 	if killed:
 		_hit_marker_color = Color.RED
@@ -332,3 +335,14 @@ func _new_label(font_size: int) -> Label:
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(label)
 	return label
+
+
+## Som curto quando o seu tiro acerta (um "ding" na cabeça).
+func _play_hit_sound(sound: AudioStream, volume_db: float) -> void:
+	var audio := AudioStreamPlayer.new()
+	audio.stream = sound
+	audio.volume_db = volume_db
+	audio.bus = GameSettings.EFFECTS_BUS
+	add_child(audio)
+	audio.finished.connect(audio.queue_free)
+	audio.play()

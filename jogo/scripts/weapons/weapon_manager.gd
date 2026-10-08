@@ -7,6 +7,7 @@ extends Node3D
 ## As armas não têm recuo: a mira não sobe nem abre ao atirar sem parar.
 ##
 ## Os nós filhos (modelos das armas) precisam estar na MESMA ORDEM da lista "weapons".
+## Cada modelo tem um nó "Cano" (Marker3D) onde aparece o clarão do tiro.
 
 signal hit_confirmed(headshot: bool, killed: bool)
 ## Disparou um tiro (usado para revelar o atirador no minimapa).
@@ -24,6 +25,12 @@ const MAX_IMPACT_MARKS := 60
 	preload("res://weapons/sniper.tres"),
 ]
 @export var impact_mark_lifetime := 10.0
+## Som de tiro de cada arma (mesma ordem da lista "weapons").
+@export var shot_sounds: Array[AudioStream] = [
+	preload("res://sons/tiro_fuzil.wav"),
+	preload("res://sons/tiro_pistola.wav"),
+	preload("res://sons/tiro_sniper.wav"),
+]
 
 var current_index := -1
 var is_scoped := false
@@ -38,6 +45,12 @@ var _rest_position := Vector3.ZERO
 var _kick := 0.0
 var _impact_marks: Array[Node3D] = []
 var _impact_mesh: SphereMesh
+var _shot_player: AudioStreamPlayer
+var _foley_player: AudioStreamPlayer
+
+const RELOAD_START_SOUND := preload("res://sons/recarga_1.ogg")
+const RELOAD_END_SOUND := preload("res://sons/recarga_2.ogg")
+const EQUIP_SOUND := preload("res://sons/trocar_arma.ogg")
 
 @onready var player: Player = owner as Player
 @onready var camera: Camera3D = get_parent() as Camera3D
@@ -56,6 +69,12 @@ func _ready() -> void:
 	material.albedo_color = Color(0.05, 0.05, 0.05)
 	_impact_mesh.material = material
 
+	# Modelos das armas em primeira pessoa não fazem sombra no chão.
+	for mesh in find_children("*", "MeshInstance3D", true, false):
+		(mesh as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+	_shot_player = _new_audio_player(6)
+	_foley_player = _new_audio_player(2)
 	equip(0)
 
 
@@ -94,9 +113,11 @@ func equip(index: int) -> void:
 	set_scoped(false)
 	_reload_timer = 0.0
 	current_index = index
-	for i in get_child_count():
+	# Só os primeiros filhos são armas (depois vêm os tocadores de som).
+	for i in weapons.size():
 		(get_child(i) as Node3D).visible = i == index
 	_equip_timer = current().equip_time
+	_play_foley(EQUIP_SOUND, -8.0)
 
 
 func get_speed_multiplier() -> float:
@@ -129,6 +150,7 @@ func start_reload() -> void:
 		return
 	set_scoped(false)
 	_reload_timer = weapon.reload_time
+	_play_foley(RELOAD_START_SOUND, -6.0)
 
 
 func _process(delta: float) -> void:
@@ -187,6 +209,7 @@ func _try_fire() -> void:
 	_fire_cooldown = weapon.fire_interval
 	_shoot_ray(weapon)
 	fired.emit()
+	_play_shot_effects()
 	_kick = KICK_DISTANCE
 	# Atirar cancela a proteção de nascimento.
 	player.health.invulnerable = false
@@ -244,4 +267,31 @@ func _spawn_impact_mark(hit_position: Vector3, normal: Vector3) -> void:
 
 func _finish_reload() -> void:
 	_reload_timer = 0.0
+	_play_foley(RELOAD_END_SOUND, -4.0)
 	_magazine[current_index] = current().magazine_size
+
+
+func _play_shot_effects() -> void:
+	if current_index < shot_sounds.size():
+		_shot_player.stream = shot_sounds[current_index]
+		_shot_player.pitch_scale = randf_range(0.96, 1.04)
+		_shot_player.play()
+	var muzzle := get_child(current_index).get_node_or_null("Cano") as Node3D
+	if muzzle != null and visible:
+		MuzzleFlash.spawn(get_tree().current_scene, muzzle.global_position)
+
+
+func _play_foley(sound: AudioStream, volume_db: float) -> void:
+	if _foley_player == null or not player.is_local():
+		return
+	_foley_player.stream = sound
+	_foley_player.volume_db = volume_db
+	_foley_player.play()
+
+
+func _new_audio_player(polyphony: int) -> AudioStreamPlayer:
+	var audio := AudioStreamPlayer.new()
+	audio.bus = GameSettings.EFFECTS_BUS
+	audio.max_polyphony = polyphony
+	add_child(audio)
+	return audio

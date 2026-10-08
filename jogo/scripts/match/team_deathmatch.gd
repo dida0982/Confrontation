@@ -226,19 +226,19 @@ func _on_shot_fired(combatant: Node) -> void:
 	if combatant is Player:
 		# Só o dono do jogador atira de verdade; ele avisa o servidor.
 		if combatant.is_multiplayer_authority():
-			_notify_shot.rpc_id(1)
+			_notify_shot.rpc_id(1, (combatant as Player).weapons.current_index)
 	else:
 		# Bonecos de treino: cada computador revela o seu.
 		reveal(combatant)
 
 
 @rpc("any_peer", "call_local", "reliable")
-func _notify_shot() -> void:
+func _notify_shot(weapon_index: int) -> void:
 	if not multiplayer.is_server():
 		return
 	var shooter := _player_by_id(_sender_id())
 	if shooter != null and not shooter.health.is_dead:
-		_event_shot.rpc(shooter.get_path())
+		_event_shot.rpc(shooter.get_path(), weapon_index)
 
 
 @rpc("any_peer", "call_local", "reliable")
@@ -385,11 +385,14 @@ func _event_damage(victim_path: NodePath, damage: int, headshot: bool, health_no
 
 
 @rpc("authority", "call_local", "reliable")
-func _event_shot(shooter_path: NodePath) -> void:
+func _event_shot(shooter_path: NodePath, weapon_index: int) -> void:
 	var shooter := get_node_or_null(shooter_path)
 	if shooter == null:
 		return
 	reveal(shooter)
+	# Quem atirou já ouviu o próprio tiro; os outros ouvem vindo do boneco dele.
+	if shooter is Player and not (shooter as Player).is_local():
+		(shooter as Player).play_remote_shot(weapon_index)
 	# Atirar cancela a proteção de nascimento.
 	_health_of(shooter).invulnerable = false
 
