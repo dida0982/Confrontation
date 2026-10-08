@@ -35,6 +35,11 @@ height = 1.44
 radius = 0.17
 height = 0.34
 
+[sub_resource type="AudioStreamGenerator" id="voz_stream"]
+resource_local_to_scene = true
+mix_rate = 16000.0
+buffer_length = 0.5
+
 [sub_resource type="SceneReplicationConfig" id="replicacao"]
 properties/0/path = NodePath(".:net_position")
 properties/0/spawn = true
@@ -131,3 +136,18 @@ mesh = SubResource("mesh_head")
 
 [node name="SyncMovimento" type="MultiplayerSynchronizer" parent="."]
 replication_config = SubResource("replicacao")
+
+[node name="Voz" type="AudioStreamPlayer3D" parent="."]
+position = Vector3(0, 1.6, 0)
+stream = SubResource("voz_stream")
+unit_size = 6.0
+max_distance = 25.0
+bus = &"Voz"
+
+[node name="FalandoLabel" type="Label3D" parent="."]
+position = Vector3(0, 2.15, 0)
+visible = false
+billboard = 1
+text = "FALANDO"
+font_size = 36
+outline_size = 8

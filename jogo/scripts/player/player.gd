@@ -95,6 +95,7 @@ var _slide_queued := false
 @onready var body_visual: Node3D = $Corpo
 @onready var body_mesh: MeshInstance3D = $Corpo/Tronco
 @onready var head_mesh: MeshInstance3D = $Corpo/Cabeca
+@onready var speaking_label: Label3D = $FalandoLabel
 
 
 func _ready() -> void:
@@ -193,6 +194,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _process(delta: float) -> void:
 	if not is_local():
+		# Aviso "FALANDO" em cima de quem está usando o chat de voz perto de você.
+		speaking_label.visible = not health.is_dead and Voz.is_speaking(name.to_int())
 		return
 	camera.rotation.x = look_pitch
 	var target_tilt := deg_to_rad(slide_camera_tilt) if is_sliding else 0.0

@@ -19,6 +19,7 @@ const TECLAS := {
 	"debug_kill": [KEY_F8],
 	"restart_match": [KEY_ENTER, KEY_KP_ENTER],
 	"scoreboard": [KEY_TAB],
+	"push_to_talk": [KEY_V],
 }
 
 const BOTOES_MOUSE := {

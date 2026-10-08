@@ -20,6 +20,11 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 Controles="*res://scripts/autoload/controles.gd"
 Configuracoes="*res://scripts/autoload/configuracoes.gd"
 Rede="*res://scripts/autoload/rede.gd"
+Voz="*res://scripts/autoload/voz.gd"
+
+[audio]
+
+driver/enable_input=true
 
 [display]
 
