@@ -61,6 +61,7 @@ Depois, vamos fazer o modo competitivo do Valorant: o Ataque planta a bomba no *
 
 - Mapas no estilo dos mapas do Valorant: três rotas e um **meio (mid)**, com uma base para cada time e os locais de bomba (A e B) do modo futuro.
 - **Primeiro mapa: Porto** ([planta e detalhes](docs/05-mapa-porto.md)).
+- **Chat de voz por proximidade:** segure **V** para falar; quem está a até 25 m ouve, inclusive inimigos ([detalhes](docs/09-chat-de-voz.md)).
 - **Minimapa** no canto, como no Valorant: aliados sempre aparecem; **inimigos só aparecem por alguns segundos depois de atirar** ([detalhes](docs/06-minimapa.md)).
 - **Importante:** o mapa precisa ser **original**, feito por nós. Copiar exatamente um mapa do Valorant (geometria, texturas, nomes, modelos) é proibido por direitos autorais da Riot Games e poderia fazer o jogo ser derrubado se for publicado. A gente vai usar o **mesmo tipo de estrutura** (três rotas, dois bombs, mid), que é uma ideia de design de jogo e não pertence a ninguém, mas com desenho próprio.
 - Pelo mesmo motivo, não vamos usar nomes, logos, sons ou modelos do Valorant.
@@ -106,7 +107,8 @@ jogo de fps/
 │   ├── 05-mapa-porto.md
 │   ├── 06-minimapa.md
 │   ├── 07-multiplayer.md
-│   ├── 08-gerar-e-publicar-o-jogo.md       ← o que foi feito por último
+│   ├── 08-gerar-e-publicar-o-jogo.md
+│   ├── 09-chat-de-voz.md                   ← o que foi feito por último
 │   └── img/                                ← planta e fotos dos mapas
 ├── distribuicao/    ← LEIA-ME.txt que vai junto no download do jogo
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)

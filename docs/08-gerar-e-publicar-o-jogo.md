@@ -80,4 +80,4 @@ Enquanto for `0.x`, o jogo está em desenvolvimento.
 
 ## ➡️ Próximo passo: Fase 8, chat de voz por proximidade
 
-Continua o plano: veja o [roadmap](00-roadmap.md). Vai ser criado o arquivo `docs/09-chat-de-voz.md`.
+Feito! Veja [09-chat-de-voz.md](09-chat-de-voz.md).

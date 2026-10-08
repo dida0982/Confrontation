@@ -9,9 +9,9 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 7 (projeto, jogador, armas, dano, mata-mata em equipe, mapa Porto e **multiplayer 5v5**), mais deslize, menu da mira, placar no Tab e minimapa
-**Agora:** jogar com amigos: baixe o jogo em <https://github.com/dida0982/Confrontation/releases/latest> e siga [08-gerar-e-publicar-o-jogo.md](08-gerar-e-publicar-o-jogo.md)
-**Próximo passo:** Fase 8, chat de voz por proximidade
+**Feito:** Fases 0 a 8 (projeto, jogador, armas, dano, mata-mata em equipe, mapa Porto, multiplayer 5v5 e **chat de voz por proximidade**), mais deslize, menu da mira, placar no Tab, minimapa e download do jogo (.exe)
+**Agora:** testar a voz seguindo [09-chat-de-voz.md](09-chat-de-voz.md)
+**Próximo passo:** Fase 9 (interface) ou Fase 10 (arte e som)
 
 ---
 
@@ -84,13 +84,16 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - [ ] (Depois) Testar com amigos pela internet (Radmin VPN, ZeroTier ou Tailscale)
 - [ ] (Depois) Entrar no meio da partida, servidor dedicado, compensação de atraso
 
-### Fase 8: Chat de voz por proximidade ⬅️ PRÓXIMA
+### Fase 8: Chat de voz por proximidade ✅
 
-- [ ] Capturar o microfone (`AudioEffectCapture`) com botão de falar (push-to-talk) ou voz aberta
-- [ ] Comprimir a voz com codec **Opus** (addon gratuito) para enviar pela rede
-- [ ] Tocar a voz num `AudioStreamPlayer3D` preso ao boneco de quem fala: o volume cai com a distância
-- [ ] Definir até onde a voz alcança e se paredes abafam o som
-- [ ] Opções: volume da voz, silenciar um jogador, escolher o microfone
+- [x] Captura do microfone (`AudioEffectCapture`), segurando V ou com voz aberta
+- [x] Compressão μ-law (grátis, sem addon) e envio pela rede, só para quem está perto
+- [x] Voz num `AudioStreamPlayer3D` no boneco: alcance de 25 m, volume cai com a distância
+- [x] Parede abafa a voz; inimigos perto também ouvem; mortos não falam
+- [x] Menu: modo, volume das vozes, microfone, teste do microfone, sensibilidade da voz aberta
+- [x] Aviso de quem está falando (HUD e em cima do boneco)
+- Arquivo: [09-chat-de-voz.md](09-chat-de-voz.md)
+- [ ] (Depois) Silenciar um jogador, rádio só do time, codec Opus
 
 ### Fase 9: Interface (menus)
 
@@ -146,11 +149,10 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 | Minimapa | No canto superior esquerdo; quem atira aparece para os inimigos por alguns segundos |
 | Multiplayer | 5 contra 5 online; um jogador cria a partida (host) e os outros entram pelo IP |
 | Comunicação | Chat de voz por proximidade |
+| Como falar | Segurando V (padrão) ou voz aberta, escolhido no menu |
+| Alcance da voz | 25 m, abafada atrás de paredes |
+| Inimigos ouvem sua voz? | Sim, se estiverem perto |
 
 ## Decisões pendentes
 
-| Decisão | Proposta inicial | Até a fase |
-|---|---|---|
-| Voz: botão para falar ou microfone sempre aberto? | Botão (ex.: V), com opção de voz aberta | Fase 8 |
-| Alcance da voz | Uns 25 metros, abafada atrás de paredes | Fase 8 |
-| Inimigos ouvem sua voz? | Sim (proximidade vale para todos), o que dá estratégia | Fase 8 |
+Nenhuma no momento.
