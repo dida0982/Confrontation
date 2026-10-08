@@ -28,6 +28,7 @@ var _ammo_label: Label
 var _weapon_label: Label
 var _info_label: Label
 var _center_label: Label
+var _voice_label: RichTextLabel
 var _score_azul: Label
 var _score_vermelho: Label
 var _timer_label: Label
@@ -98,6 +99,18 @@ func _ready() -> void:
 	_center_label = _new_label(28)
 	_center_label.text = "Esperando os outros jogadores..."
 
+	_voice_label = RichTextLabel.new()
+	_voice_label.bbcode_enabled = true
+	_voice_label.fit_content = true
+	_voice_label.scroll_active = false
+	_voice_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	_voice_label.custom_minimum_size = Vector2(420, 0)
+	_voice_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_voice_label.add_theme_font_size_override("normal_font_size", 18)
+	_voice_label.add_theme_constant_override("outline_size", 5)
+	_voice_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_root.add_child(_voice_label)
+
 
 ## O jogador deste computador apareceu: liga o HUD a ele.
 func _bind_player(local_player: Player) -> void:
@@ -132,12 +145,13 @@ func _process(delta: float) -> void:
 		_ammo_label.text = "RECARREGANDO..."
 	else:
 		_ammo_label.text = "%d / ∞" % weapons.ammo_in_magazine()
-	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  Tab placar  |  F11 tela cheia%s" % [
+	_info_label.text = "FPS %d\n[1] Fuzil  [2] Pistola  [3] Sniper  |  R recarregar  |  Botão direito: zoom da sniper\nShift correr  |  Ctrl agachar  |  Espaço pular  |  Esc menu  |  Tab placar  |  V falar  |  F11 tela cheia%s" % [
 		Engine.get_frames_per_second(), "  |  F8 morrer (teste)" if OS.is_debug_build() else ""]
 	_center_label.visible = Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and not _is_menu_open()
 
 	_update_match_info()
 	_update_killfeed(delta)
+	_update_voice()
 	_scoreboard.visible = Input.is_action_pressed("scoreboard") and not _is_menu_open()
 
 	_layout()
@@ -157,6 +171,7 @@ func _layout() -> void:
 	if _minimap != null:
 		_minimap.position = Vector2(16.0, 16.0)
 	_info_label.position = Vector2(margin, _health_label.position.y - _info_label.size.y - 8.0)
+	_voice_label.position = Vector2(margin, _info_label.position.y - _voice_label.size.y - 8.0)
 	_center_label.position = (screen - _center_label.size) / 2.0 + Vector2(0, 60)
 
 	# Placar no topo: "12   9:12   7"
@@ -208,6 +223,19 @@ func _update_match_info() -> void:
 		_end_subtitle.text = "Azul %d  x  %d Vermelho\n%s" % [
 			match_mode.scores[Team.Id.AZUL], match_mode.scores[Team.Id.VERMELHO],
 			"Aperte Enter para jogar de novo" if multiplayer.is_server() else "Esperando o host começar outra partida"]
+
+
+## Chat de voz: mostra se você está transmitindo e quem está falando perto.
+func _update_voice() -> void:
+	var lines := PackedStringArray()
+	if Voz.is_transmitting:
+		lines.append("[color=#7dff9a]● Transmitindo sua voz[/color]")
+	for id in Voz.speaking_ids():
+		var speaker := match_mode.players_root.get_node_or_null(str(id))
+		if speaker != null:
+			lines.append("%s  falando" % _colored_name(speaker))
+	_voice_label.text = "
+".join(lines)
 
 
 func _update_killfeed(delta: float) -> void:
