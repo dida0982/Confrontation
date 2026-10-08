@@ -10,3 +10,12 @@ scale = Vector3(0.159, 0.159, 0.159)
 
 [node name="Cano" type="Marker3D" parent="."]
 position = Vector3(0, 0.05, -0.84)
+
+[node name="MaoDireita" type="Marker3D" parent="."]
+position = Vector3(0.0, -0.05, 0.06)
+
+[node name="MaoEsquerda" type="Marker3D" parent="."]
+position = Vector3(0.0, 0.0, -0.36)
+
+[node name="Pente" type="Marker3D" parent="."]
+position = Vector3(0.0, -0.09, -0.05)

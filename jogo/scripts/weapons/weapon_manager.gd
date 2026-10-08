@@ -7,7 +7,14 @@ extends Node3D
 ## As armas não têm recuo: a mira não sobe nem abre ao atirar sem parar.
 ##
 ## Os nós filhos (modelos das armas) precisam estar na MESMA ORDEM da lista "weapons".
-## Cada modelo tem um nó "Cano" (Marker3D) onde aparece o clarão do tiro.
+## Cada modelo tem marcadores (Marker3D): "Cano" (clarão do tiro), "MaoDireita",
+## "MaoEsquerda" e "Pente" (usados pelos braços em primeira pessoa).
+##
+## Animações (feitas por código, sem arquivo de animação):
+## - trocar de arma: a arma nova sobe de baixo da tela girando;
+## - recarregar: a arma inclina, a mão esquerda tira o pente, pega outro e
+##   encaixa (os braços leem reload_progress());
+## - andar: a arma balança de leve; atirar: dá um tranco para trás.
 
 signal hit_confirmed(headshot: bool, killed: bool)
 ## Disparou um tiro (usado para revelar o atirador no minimapa).
@@ -19,6 +26,9 @@ const SHOT_MASK := 1 | 4
 const KICK_DISTANCE := 0.05
 ## Volume do som de tiro da sua arma (dB). Negativo = mais baixo.
 const SHOT_VOLUME_DB := -10.0
+## Momentos da recarga (0 = começo, 1 = fim) em que tocam os sons.
+const RELOAD_MAG_OUT := 0.2
+const RELOAD_MAG_IN := 0.66
 const MAX_IMPACT_MARKS := 60
 
 @export var weapons: Array[WeaponData] = [
@@ -47,6 +57,11 @@ var _rest_position := Vector3.ZERO
 var _kick := 0.0
 var _impact_marks: Array[Node3D] = []
 var _impact_mesh: SphereMesh
+var _equip_anim_time := 1.0
+var _equip_anim_duration := 1.0
+var _reload_duration := 1.0
+var _reload_sounds_played := 0
+var _bob_time := 0.0
 var _shot_player: AudioStreamPlayer
 var _foley_player: AudioStreamPlayer
 
@@ -92,6 +107,18 @@ func is_reloading() -> bool:
 	return _reload_timer > 0.0
 
 
+## Quanto da recarga já passou (0 a 1), ou -1 se não está recarregando.
+func reload_progress() -> float:
+	if not is_reloading():
+		return -1.0
+	return clampf(1.0 - _reload_timer / _reload_duration, 0.0, 1.0)
+
+
+## O modelo da arma que está na mão.
+func current_weapon_node() -> Node3D:
+	return get_child(current_index) as Node3D
+
+
 ## Evita que o clique usado para "prender" o mouse na tela dispare um tiro.
 func block_fire_until_release() -> void:
 	_fire_blocked = true
@@ -119,6 +146,8 @@ func equip(index: int) -> void:
 	for i in weapons.size():
 		(get_child(i) as Node3D).visible = i == index
 	_equip_timer = current().equip_time
+	_equip_anim_duration = maxf(current().equip_time, 0.3)
+	_equip_anim_time = 0.0
 	_play_foley(EQUIP_SOUND, -8.0)
 
 
@@ -152,7 +181,8 @@ func start_reload() -> void:
 		return
 	set_scoped(false)
 	_reload_timer = weapon.reload_time
-	_play_foley(RELOAD_START_SOUND, -6.0)
+	_reload_duration = weapon.reload_time
+	_reload_sounds_played = 0
 
 
 func _process(delta: float) -> void:
@@ -160,12 +190,21 @@ func _process(delta: float) -> void:
 	_equip_timer = maxf(_equip_timer - delta, 0.0)
 
 	_kick = move_toward(_kick, 0.0, 0.5 * delta)
-	position = _rest_position + Vector3(0, 0, _kick)
+	_equip_anim_time += delta
 
 	if is_reloading():
 		_reload_timer -= delta
+		var progress := reload_progress()
+		if _reload_sounds_played == 0 and progress >= RELOAD_MAG_OUT:
+			_reload_sounds_played = 1
+			_play_foley(RELOAD_START_SOUND, -6.0)
+		elif _reload_sounds_played == 1 and progress >= RELOAD_MAG_IN:
+			_reload_sounds_played = 2
+			_play_foley(RELOAD_END_SOUND, -4.0)
 		if _reload_timer <= 0.0:
 			_finish_reload()
+
+	_animate(delta)
 
 	if _fire_blocked:
 		if Input.is_action_pressed("fire"):
@@ -269,8 +308,37 @@ func _spawn_impact_mark(hit_position: Vector3, normal: Vector3) -> void:
 
 func _finish_reload() -> void:
 	_reload_timer = 0.0
-	_play_foley(RELOAD_END_SOUND, -4.0)
 	_magazine[current_index] = current().magazine_size
+
+
+## Posição e rotação da arma na tela neste quadro (troca, recarga, balanço, tranco).
+func _animate(delta: float) -> void:
+	var offset := Vector3(0, 0, _kick)
+	var tilt := Vector3(_kick * 1.5, 0, 0)
+
+	# Trocar de arma: começa abaixo da tela, inclinada, e sobe.
+	var equip_t := clampf(_equip_anim_time / _equip_anim_duration, 0.0, 1.0)
+	var lowered := 1.0 - ease(equip_t, 0.35)
+	offset += Vector3(0.02, -0.3, 0.08) * lowered
+	tilt += Vector3(deg_to_rad(-40), deg_to_rad(10), 0) * lowered
+
+	# Recarregar: inclina para o lado no começo, volta no fim; "tapa" ao encaixar.
+	var progress := reload_progress()
+	if progress >= 0.0:
+		var amount := smoothstep(0.0, 0.15, progress) * (1.0 - smoothstep(0.82, 1.0, progress))
+		offset += Vector3(-0.03, -0.02, 0.02) * amount
+		tilt += Vector3(deg_to_rad(8), deg_to_rad(-6), deg_to_rad(18)) * amount
+		var slap := smoothstep(RELOAD_MAG_IN - 0.02, RELOAD_MAG_IN, progress) * (1.0 - smoothstep(RELOAD_MAG_IN, RELOAD_MAG_IN + 0.08, progress))
+		offset.y += 0.015 * slap
+
+	# Balanço ao andar (some parado ou no ar).
+	var speed := Vector2(player.velocity.x, player.velocity.z).length() if player.is_on_floor() else 0.0
+	var walk := clampf(speed / player.run_speed, 0.0, 1.3)
+	_bob_time += delta * (6.0 + speed)
+	offset += Vector3(sin(_bob_time) * 0.008, -absf(cos(_bob_time)) * 0.01, 0) * walk
+
+	position = _rest_position + offset
+	rotation = tilt
 
 
 func _play_shot_effects() -> void:
