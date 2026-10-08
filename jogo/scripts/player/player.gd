@@ -11,6 +11,9 @@ const BODY_HITBOX_STAND := 1.44
 const BODY_HITBOX_CROUCH := 0.95
 const DEAD_HEAD_HEIGHT := 0.3
 
+## Atirou (a partida usa isso para revelar o jogador no minimapa dos inimigos).
+signal shot_fired
+
 ## Nome que aparece no feed de abates.
 @export var display_name := "Você"
 
@@ -76,6 +79,7 @@ var _slide_queued := false
 func _ready() -> void:
 	add_to_group("player")
 	health.died.connect(_on_died)
+	weapons.fired.connect(shot_fired.emit)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 

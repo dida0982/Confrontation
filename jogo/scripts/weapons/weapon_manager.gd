@@ -9,6 +9,8 @@ extends Node3D
 ## Os nós filhos (modelos das armas) precisam estar na MESMA ORDEM da lista "weapons".
 
 signal hit_confirmed(headshot: bool, killed: bool)
+## Disparou um tiro (usado para revelar o atirador no minimapa).
+signal fired
 
 ## Bits das camadas que o tiro acerta: 1 = mundo, 4 = hitbox.
 ## (Não acerta a camada 2 "jogadores", que é só para colisão de movimento.)
@@ -184,6 +186,7 @@ func _try_fire() -> void:
 	_magazine[current_index] -= 1
 	_fire_cooldown = weapon.fire_interval
 	_shoot_ray(weapon)
+	fired.emit()
 	_kick = KICK_DISTANCE
 	# Atirar cancela a proteção de nascimento.
 	player.health.invulnerable = false

@@ -5,7 +5,8 @@ extends Node
 ## - ganha quem chegar primeiro a "kills_to_win" abates,
 ##   ou quem tiver mais abates quando o tempo acabar (pode empatar);
 ## - quem morre renasce depois de "respawn_delay" segundos, num ponto de
-##   nascimento do seu time, longe dos inimigos, com proteção por alguns segundos.
+##   nascimento do seu time, longe dos inimigos, com proteção por alguns segundos;
+## - quem atira aparece no minimapa dos inimigos por "reveal_time" segundos.
 ##
 ## Tudo que pode lutar fica no grupo "combatants" e tem um nó filho "Health".
 ## Quem tem o método respawn(at, protection_time) é renascido por este script
@@ -24,6 +25,8 @@ enum State { PLAYING, ENDED }
 @export var time_limit := 570.0
 @export var respawn_delay := 3.0
 @export var spawn_protection := 2.0
+## Segundos que um jogador fica visível no minimapa dos inimigos depois de atirar.
+@export var reveal_time := 3.0
 ## Nós cujos filhos (Marker3D) são os pontos de nascimento de cada time.
 @export var spawns_azul: Node3D
 @export var spawns_vermelho: Node3D
@@ -37,6 +40,8 @@ var winner := -1
 var _respawn_timers := {}
 ## Combatente -> {"kills": int, "deaths": int}
 var _stats := {}
+## Combatente -> momento (em segundos) até quando aparece no minimapa dos inimigos.
+var _revealed_until := {}
 
 
 func _ready() -> void:
@@ -49,6 +54,8 @@ func _start() -> void:
 		var health := _health_of(combatant)
 		health.died.connect(_on_died.bind(combatant))
 		_stats[combatant] = {"kills": 0, "deaths": 0}
+		if combatant.has_signal("shot_fired"):
+			combatant.shot_fired.connect(func() -> void: reveal(combatant))
 		if combatant.has_method("respawn"):
 			combatant.respawn(_pick_spawn(health.team), spawn_protection)
 
@@ -96,6 +103,20 @@ func ranking(team: Team.Id) -> Array[Node]:
 	return members
 
 
+## Mostra o combatente no minimapa dos inimigos por "seconds" segundos.
+func reveal(combatant: Node, seconds: float = reveal_time) -> void:
+	_revealed_until[combatant] = _now() + seconds
+
+
+## Quantos segundos ainda falta o combatente aparecer no minimapa dos inimigos (0 = escondido).
+func reveal_time_left(combatant: Node) -> float:
+	return maxf(_revealed_until.get(combatant, 0.0) - _now(), 0.0)
+
+
+static func _now() -> float:
+	return Time.get_ticks_msec() / 1000.0
+
+
 ## Segundos até renascer (0 se não estiver esperando).
 func respawn_time_left(combatant: Node) -> float:
 	return _respawn_timers.get(combatant, 0.0)
@@ -107,6 +128,7 @@ func _on_died(killer: Node, headshot: bool, victim: Node) -> void:
 
 	var victim_team := _health_of(victim).team
 	stats_of(victim)["deaths"] += 1
+	_revealed_until.erase(victim)
 	if killer != null and killer != victim and _health_of(killer).team != victim_team:
 		scores[_health_of(killer).team] += 1
 		stats_of(killer)["kills"] += 1
