@@ -31,6 +31,7 @@ var _material := StandardMaterial3D.new()
 
 
 func _ready() -> void:
+	add_to_group("training_dummy")
 	_start_position = position
 	_material.albedo_color = base_color
 	for mesh in visual.get_children():

@@ -66,6 +66,15 @@ func play_offline(player_name: String, map_path: String) -> void:
 	start_match(map_path)
 
 
+## Quando um mapa é aberto direto no editor (F6), sem passar pelo menu:
+## cria um jogador sozinho para dar para testar.
+func ensure_offline_player() -> void:
+	if not players.is_empty() or is_online():
+		return
+	players = {1: {"name": clean_name(Configuracoes.player_name), "team": Team.Id.AZUL}}
+	in_match = true
+
+
 ## Cria a partida neste computador. Retorna OK ou o erro do Godot.
 func host(player_name: String) -> Error:
 	_close_connection()

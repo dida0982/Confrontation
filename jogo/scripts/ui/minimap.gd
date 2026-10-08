@@ -173,9 +173,12 @@ func _draw() -> void:
 
 
 func _draw_combatants() -> void:
+	# O jogador some quando a partida acaba ou a conexão cai.
+	if not is_instance_valid(local_player) or not local_player.is_inside_tree():
+		return
 	var my_team := local_player.health.team
 	for combatant in get_tree().get_nodes_in_group("combatants"):
-		if combatant == local_player:
+		if combatant == local_player or not combatant.is_inside_tree():
 			continue
 		var health := combatant.get_node("Health") as Health
 		if health.is_dead:

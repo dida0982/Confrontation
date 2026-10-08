@@ -213,11 +213,13 @@ func _shoot_ray(weapon: WeaponData) -> void:
 	var hitbox := hit.collider as Hitbox
 	if hitbox != null and hitbox.health != null:
 		# Sem fogo amigo: tiro em aliado não causa dano.
-		if hitbox.health.team == player.health.team:
+		if hitbox.health.team == player.health.team or hitbox.health.is_dead:
 			return
-		var damage := weapon.head_damage if hitbox.is_head else weapon.body_damage
-		var killed := hitbox.health.take_damage(damage, hitbox.is_head, player)
-		hit_confirmed.emit(hitbox.is_head, killed)
+		# Mostra o acerto na hora e pede para o servidor (host) conferir e aplicar o dano.
+		hit_confirmed.emit(hitbox.is_head, false)
+		var match_mode := get_tree().get_first_node_in_group("match") as TeamDeathmatch
+		if match_mode != null:
+			match_mode.report_hit(hitbox.owner, hitbox.is_head, current_index, from)
 	else:
 		_spawn_impact_mark(hit.position, hit.normal)
 

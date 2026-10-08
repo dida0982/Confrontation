@@ -3,13 +3,15 @@ extends CanvasLayer
 ## placar e tempo da partida, feed de abates, tela de morte, tela de fim de partida
 ## o placar de abates (segurando Tab) e o minimapa no canto superior esquerdo.
 ## Tudo é criado por código aqui para ficar fácil de ajustar.
+##
+## Em rede, o jogador local só aparece quando todos carregaram o mapa. Até lá
+## o HUD mostra "Esperando os outros jogadores..." e depois se liga a ele.
 
 const HIT_MARKER_TIME := 0.15
 const KILLFEED_TIME := 5.0
 const KILLFEED_MAX := 5
 const KILLFEED_WIDTH := 460.0
 
-@export var player_path: NodePath
 @export var match_path: NodePath
 ## Nó com as caixas do mapa (o minimapa é desenhado a partir delas).
 @export var map_path: NodePath
@@ -44,11 +46,9 @@ var _hit_marker_color := Color.WHITE
 
 
 func _ready() -> void:
-	player = get_node(player_path) as Player
-	weapons = player.weapons
-	weapons.hit_confirmed.connect(_on_hit_confirmed)
 	match_mode = get_node(match_path) as TeamDeathmatch
 	match_mode.kill_registered.connect(_on_kill_registered)
+	match_mode.local_player_spawned.connect(_bind_player)
 
 	_root = Control.new()
 	_root.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -91,6 +91,21 @@ func _ready() -> void:
 	_end_subtitle = _new_label(28)
 	_end_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
+	_health_label = _new_label(40)
+	_ammo_label = _new_label(40)
+	_weapon_label = _new_label(24)
+	_info_label = _new_label(16)
+	_center_label = _new_label(28)
+	_center_label.text = "Esperando os outros jogadores..."
+
+
+## O jogador deste computador apareceu: liga o HUD a ele.
+func _bind_player(local_player: Player) -> void:
+	player = local_player
+	weapons = player.weapons
+	weapons.hit_confirmed.connect(_on_hit_confirmed)
+	_center_label.text = "Clique para jogar"
+
 	_minimap = Minimap.new(match_mode, player, get_node(map_path) as Node3D)
 	_root.add_child(_minimap)
 
@@ -98,15 +113,17 @@ func _ready() -> void:
 	_scoreboard.visible = false
 	_root.add_child(_scoreboard)
 
-	_health_label = _new_label(40)
-	_ammo_label = _new_label(40)
-	_weapon_label = _new_label(24)
-	_info_label = _new_label(16)
-	_center_label = _new_label(28)
-	_center_label.text = "Clique para jogar"
-
 
 func _process(delta: float) -> void:
+	if player != null and (not is_instance_valid(player) or not player.is_inside_tree()):
+		player = null
+		weapons = null
+	if player == null:
+		_center_label.visible = true
+		_update_match_info()
+		_layout()
+		return
+
 	_hit_marker_timer = maxf(_hit_marker_timer - delta, 0.0)
 
 	_health_label.text = "VIDA  %d" % player.health.current
@@ -136,7 +153,8 @@ func _layout() -> void:
 	_health_label.position = Vector2(margin, screen.y - _health_label.size.y - margin)
 	_ammo_label.position = Vector2(screen.x - _ammo_label.size.x - margin, screen.y - _ammo_label.size.y - margin)
 	_weapon_label.position = Vector2(screen.x - _weapon_label.size.x - margin, _ammo_label.position.y - _weapon_label.size.y)
-	_minimap.position = Vector2(16.0, 16.0)
+	if _minimap != null:
+		_minimap.position = Vector2(16.0, 16.0)
 	_info_label.position = Vector2(margin, _health_label.position.y - _info_label.size.y - 8.0)
 	_center_label.position = (screen - _center_label.size) / 2.0 + Vector2(0, 60)
 
@@ -146,8 +164,9 @@ func _layout() -> void:
 	_score_vermelho.position = Vector2(_timer_label.position.x + _timer_label.size.x + 24.0, margin - 4.0)
 
 	_killfeed.position = Vector2(screen.x - KILLFEED_WIDTH - margin, margin)
-	_scoreboard.reset_size()
-	_scoreboard.position = Vector2((screen.x - _scoreboard.size.x) / 2.0, 80.0)
+	if _scoreboard != null:
+		_scoreboard.reset_size()
+		_scoreboard.position = Vector2((screen.x - _scoreboard.size.x) / 2.0, 80.0)
 	_protection_label.position = Vector2((screen.x - _protection_label.size.x) / 2.0, screen.y / 2.0 + 40.0)
 	_death_label.position = Vector2((screen.x - _death_label.size.x) / 2.0, screen.y * 0.3)
 	_end_title.position = Vector2((screen.x - _end_title.size.x) / 2.0, screen.y * 0.3)
@@ -161,6 +180,10 @@ func _update_match_info() -> void:
 	_timer_label.text = "%d:%02d" % [floori(seconds / 60.0), seconds % 60]
 
 	var ended := match_mode.state == TeamDeathmatch.State.ENDED
+	if player == null:
+		for node in [_death_overlay, _death_label, _protection_label, _end_title, _end_subtitle]:
+			(node as CanvasItem).visible = false
+		return
 	var dead := player.health.is_dead
 	_death_overlay.visible = dead and not ended
 	_death_label.visible = dead and not ended
@@ -181,8 +204,9 @@ func _update_match_info() -> void:
 		else:
 			_end_title.text = "DERROTA"
 			_end_title.add_theme_color_override("font_color", Team.color_of(match_mode.winner as Team.Id))
-		_end_subtitle.text = "Azul %d  x  %d Vermelho\nAperte Enter para jogar de novo" % [
-			match_mode.scores[Team.Id.AZUL], match_mode.scores[Team.Id.VERMELHO]]
+		_end_subtitle.text = "Azul %d  x  %d Vermelho\n%s" % [
+			match_mode.scores[Team.Id.AZUL], match_mode.scores[Team.Id.VERMELHO],
+			"Aperte Enter para jogar de novo" if multiplayer.is_server() else "Esperando o host começar outra partida"]
 
 
 func _update_killfeed(delta: float) -> void:
@@ -196,6 +220,10 @@ func _update_killfeed(delta: float) -> void:
 
 
 func _on_kill_registered(killer: Node, victim: Node, headshot: bool) -> void:
+	# O servidor confirmou que você matou: marcador vermelho.
+	if player != null and killer == player:
+		_hit_marker_timer = HIT_MARKER_TIME
+		_hit_marker_color = Color.RED
 	var victim_text := _colored_name(victim)
 	var text: String
 	if killer == null or killer == victim:
@@ -215,6 +243,8 @@ func _colored_name(combatant: Node) -> String:
 
 
 func _draw_crosshair() -> void:
+	if player == null:
+		return
 	var center := _crosshair.size / 2.0
 
 	if _hit_marker_timer > 0.0:
@@ -228,7 +258,7 @@ func _draw_crosshair() -> void:
 
 
 func _draw_scope() -> void:
-	if not weapons.is_scoped:
+	if weapons == null or not weapons.is_scoped:
 		return
 	var screen := _scope_overlay.size
 	var center := screen / 2.0

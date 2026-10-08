@@ -3,6 +3,13 @@ extends CharacterBody3D
 ## Jogador em primeira pessoa: câmera no mouse, andar, correr (Shift),
 ## agachar, pular e deslizar (Ctrl com velocidade alta).
 ## As armas ficam no nó WeaponManager (filho da câmera).
+##
+## Em rede, cada jogador existe em todos os computadores:
+## - no computador do DONO (is_local() == true) ele lê teclado e mouse, usa a
+##   câmera e manda a posição para os outros (variáveis net_*, copiadas pelo
+##   nó SyncMovimento);
+## - nos outros computadores ele só mostra o corpo colorido do time e segue as
+##   variáveis net_* com suavização.
 
 const STAND_HEIGHT := 1.8
 const CROUCH_HEIGHT := 1.2
@@ -10,6 +17,10 @@ const CAPSULE_RADIUS := 0.4
 const BODY_HITBOX_STAND := 1.44
 const BODY_HITBOX_CROUCH := 0.95
 const DEAD_HEAD_HEIGHT := 0.3
+## Quão rápido o boneco dos outros jogadores alcança a posição recebida.
+const REMOTE_SMOOTHING := 18.0
+## Se a posição recebida estiver mais longe que isso, teleporta (ex.: renasceu).
+const REMOTE_TELEPORT_DISTANCE := 4.0
 
 ## Atirou (a partida usa isso para revelar o jogador no minimapa dos inimigos).
 signal shot_fired
@@ -58,6 +69,13 @@ var is_crouching := false
 var is_sliding := false
 ## Desligado pela partida quando ela termina.
 var controls_enabled := true
+## Proteção de nascimento para aplicar quando o jogador aparece (a partida define).
+var spawn_protection_on_ready := 0.0
+
+# Copiadas do dono para os outros computadores pelo nó SyncMovimento.
+var net_position := Vector3.ZERO
+var net_yaw := 0.0
+var net_crouching := false
 
 var _spawn_protection_timer := 0.0
 var _slide_direction := Vector3.ZERO
@@ -74,13 +92,42 @@ var _slide_queued := false
 @onready var hitboxes: Node3D = $Hitboxes
 @onready var head_hitbox: Hitbox = $Hitboxes/Head
 @onready var body_hitbox: Hitbox = $Hitboxes/Body
+@onready var body_visual: Node3D = $Corpo
+@onready var body_mesh: MeshInstance3D = $Corpo/Tronco
+@onready var head_mesh: MeshInstance3D = $Corpo/Cabeca
 
 
 func _ready() -> void:
-	add_to_group("player")
 	health.died.connect(_on_died)
 	weapons.fired.connect(shot_fired.emit)
-	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	net_position = global_position
+	net_yaw = rotation.y
+
+	var team_material := StandardMaterial3D.new()
+	team_material.albedo_color = Team.color_of(health.team)
+	body_mesh.material_override = team_material
+	head_mesh.material_override = team_material
+
+	if is_local():
+		add_to_group("player")
+		camera.make_current()
+		body_visual.visible = false
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		camera.current = false
+		weapons.visible = false
+		weapons.set_process(false)
+		weapons.set_process_unhandled_input(false)
+		set_process_unhandled_input(false)
+
+	if spawn_protection_on_ready > 0.0:
+		health.invulnerable = true
+		_spawn_protection_timer = spawn_protection_on_ready
+
+
+## true no computador de quem controla este jogador.
+func is_local() -> bool:
+	return is_multiplayer_authority()
 
 
 ## true se o jogador está vivo e pode se mexer e atirar
@@ -95,6 +142,8 @@ func respawn(at: Transform3D, protection_time: float) -> void:
 	health.reset()
 	global_position = at.origin
 	rotation = Vector3(0.0, at.basis.get_euler().y, 0.0)
+	net_position = global_position
+	net_yaw = rotation.y
 	velocity = Vector3.ZERO
 	look_pitch = 0.0
 	is_sliding = false
@@ -106,7 +155,8 @@ func respawn(at: Transform3D, protection_time: float) -> void:
 	for hitbox in hitboxes.get_children():
 		(hitbox as Hitbox).set_enabled(true)
 	weapons.refill()
-	weapons.visible = true
+	weapons.visible = is_local()
+	body_visual.visible = not is_local()
 	health.invulnerable = protection_time > 0.0
 	_spawn_protection_timer = protection_time
 
@@ -114,6 +164,7 @@ func respawn(at: Transform3D, protection_time: float) -> void:
 func _on_died(_killer: Node, _headshot: bool) -> void:
 	weapons.set_scoped(false)
 	weapons.visible = false
+	body_visual.visible = false
 	health.invulnerable = false
 	# Corpo morto não bloqueia ninguém nem leva tiro.
 	collision_layer = 0
@@ -130,8 +181,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		look_pitch = clampf(look_pitch - motion.relative.y * sensitivity, deg_to_rad(-89.0), deg_to_rad(89.0))
 	elif event.is_action_pressed("debug_kill") and OS.is_debug_build() and can_act():
 		# Só para testes: morrer na hora para testar o renascimento.
-		health.invulnerable = false
-		health.take_damage(health.max_health, false)
+		var match_mode := get_tree().get_first_node_in_group("match") as TeamDeathmatch
+		if match_mode != null:
+			match_mode.request_suicide()
 	elif event is InputEventMouseButton and event.is_pressed() and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
 		# Clicar na tela prende o mouse de novo (ex.: depois de trocar de janela).
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
@@ -140,6 +192,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if not is_local():
+		return
 	camera.rotation.x = look_pitch
 	var target_tilt := deg_to_rad(slide_camera_tilt) if is_sliding else 0.0
 	camera.rotation.z = lerpf(camera.rotation.z, target_tilt, minf(10.0 * delta, 1.0))
@@ -150,6 +204,10 @@ func _physics_process(delta: float) -> void:
 		_spawn_protection_timer -= delta
 		if _spawn_protection_timer <= 0.0:
 			health.invulnerable = false
+
+	if not is_local():
+		_follow_network(delta)
+		return
 
 	var active := can_act()
 	_slide_cooldown_timer = maxf(_slide_cooldown_timer - delta, 0.0)
@@ -191,6 +249,26 @@ func _physics_process(delta: float) -> void:
 
 	if is_sliding:
 		_update_slide_after_move()
+
+	net_position = global_position
+	net_yaw = rotation.y
+	net_crouching = is_crouching
+
+
+## Nos outros computadores: segue a posição que o dono mandou, suavizando.
+func _follow_network(delta: float) -> void:
+	if global_position.distance_to(net_position) > REMOTE_TELEPORT_DISTANCE:
+		global_position = net_position
+	else:
+		global_position = global_position.lerp(net_position, minf(REMOTE_SMOOTHING * delta, 1.0))
+	rotation.y = lerp_angle(rotation.y, net_yaw, minf(REMOTE_SMOOTHING * delta, 1.0))
+	if health.is_dead:
+		return
+	if net_crouching != is_crouching:
+		_set_crouch(net_crouching)
+	var target_height := crouch_head_height if is_crouching else stand_head_height
+	head.position.y = move_toward(head.position.y, target_height, crouch_transition_speed * delta)
+	_update_head_parts()
 
 
 ## RIDs do próprio jogador, para o tiro não acertar a si mesmo.
@@ -268,7 +346,13 @@ func _update_crouch(delta: float) -> void:
 
 	var target_height := crouch_head_height if is_crouching else stand_head_height
 	head.position.y = move_toward(head.position.y, target_height, crouch_transition_speed * delta)
+	_update_head_parts()
+
+
+## Hitbox e modelo da cabeça acompanham a altura da cabeça (agachar).
+func _update_head_parts() -> void:
 	head_hitbox.position.y = head.position.y + 0.05
+	head_mesh.position.y = head.position.y + 0.05
 
 
 func _set_crouch(value: bool) -> void:
@@ -282,6 +366,8 @@ func _set_crouch(value: bool) -> void:
 	var body_shape := (body_hitbox.get_node("CollisionShape3D") as CollisionShape3D).shape as CapsuleShape3D
 	body_shape.height = body_height
 	body_hitbox.position.y = body_height / 2.0
+	body_mesh.scale.y = body_height / BODY_HITBOX_STAND
+	body_mesh.position.y = body_height / 2.0
 
 
 ## Confere se tem espaço acima da cabeça para levantar.
