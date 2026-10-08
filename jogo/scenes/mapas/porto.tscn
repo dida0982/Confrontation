@@ -385,7 +385,7 @@ material = SubResource("mat_cover")
 
 [node name="Nomes" type="Node3D" parent="Mapa"]
 
-[node name="Nome1" type="Label3D" parent="Mapa/Nomes"]
+[node name="Nome1" type="Label3D" parent="Mapa/Nomes" groups=["minimap_label"]]
 position = Vector3(-23, 0.03, -17)
 rotation_degrees = Vector3(-90, 0, 0)
 pixel_size = 0.015
@@ -394,7 +394,7 @@ text = "A"
 font_size = 220
 outline_size = 0
 
-[node name="Nome2" type="Label3D" parent="Mapa/Nomes"]
+[node name="Nome2" type="Label3D" parent="Mapa/Nomes" groups=["minimap_label"]]
 position = Vector3(23, 0.03, -17)
 rotation_degrees = Vector3(-90, 0, 0)
 pixel_size = 0.015
@@ -546,6 +546,7 @@ position = Vector3(-30, 0, -30)
 rotation_degrees = Vector3(0, 180, 0)
 display_name = "Boneco 2"
 strafe_distance = 3
+simulate_shot_interval = 4.0
 
 [node name="Boneco3" parent="Bonecos" instance=ExtResource("2_dummy")]
 position = Vector3(23, 1, -25)
@@ -557,12 +558,14 @@ position = Vector3(30, 0, -28)
 rotation_degrees = Vector3(0, 180, 0)
 display_name = "Boneco 4"
 strafe_distance = 3
+simulate_shot_interval = 5.0
 
 [node name="Boneco5" parent="Bonecos" instance=ExtResource("2_dummy")]
 position = Vector3(0, 0, -8)
 rotation_degrees = Vector3(0, 180, 0)
 display_name = "Boneco 5"
 strafe_distance = 4
+simulate_shot_interval = 6.0
 
 [node name="Boneco6" parent="Bonecos" instance=ExtResource("2_dummy")]
 position = Vector3(0, 0, -30)
@@ -591,6 +594,7 @@ spawns_vermelho = NodePath("../Spawns/Vermelho")
 script = ExtResource("3_hud")
 player_path = NodePath("../Player")
 match_path = NodePath("../TeamDeathmatch")
+map_path = NodePath("../Mapa")
 
 [node name="PauseMenu" type="CanvasLayer" parent="."]
 script = ExtResource("6_menu")

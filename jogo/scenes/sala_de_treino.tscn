@@ -124,6 +124,7 @@ position = Vector3(-4, 0, -15)
 display_name = "Boneco 3"
 position = Vector3(5, 0, -20)
 strafe_distance = 3.0
+simulate_shot_interval = 4.0
 
 [node name="Dummy3" parent="Dummies" instance=ExtResource("2_dummy")]
 display_name = "Boneco 4"
@@ -178,6 +179,7 @@ spawns_vermelho = NodePath("../Spawns/Vermelho")
 script = ExtResource("3_hud")
 player_path = NodePath("../Player")
 match_path = NodePath("../TeamDeathmatch")
+map_path = NodePath("../Map")
 
 [node name="PauseMenu" type="CanvasLayer" parent="."]
 script = ExtResource("6_menu")

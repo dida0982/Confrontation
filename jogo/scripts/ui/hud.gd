@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Interface na tela: mira, vida, munição, arma atual, marcador de acerto, luneta da sniper,
 ## placar e tempo da partida, feed de abates, tela de morte, tela de fim de partida
-## e o placar de abates (segurando Tab).
+## o placar de abates (segurando Tab) e o minimapa no canto superior esquerdo.
 ## Tudo é criado por código aqui para ficar fácil de ajustar.
 
 const HIT_MARKER_TIME := 0.15
@@ -11,6 +11,8 @@ const KILLFEED_WIDTH := 460.0
 
 @export var player_path: NodePath
 @export var match_path: NodePath
+## Nó com as caixas do mapa (o minimapa é desenhado a partir delas).
+@export var map_path: NodePath
 
 var player: Player
 var weapons: WeaponManager
@@ -34,6 +36,7 @@ var _end_title: Label
 var _end_subtitle: Label
 var _killfeed: RichTextLabel
 var _scoreboard: Scoreboard
+var _minimap: Minimap
 ## Cada item: {"text": String, "time": float}
 var _killfeed_entries: Array[Dictionary] = []
 var _hit_marker_timer := 0.0
@@ -88,6 +91,9 @@ func _ready() -> void:
 	_end_subtitle = _new_label(28)
 	_end_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 
+	_minimap = Minimap.new(match_mode, player, get_node(map_path) as Node3D)
+	_root.add_child(_minimap)
+
 	_scoreboard = Scoreboard.new(match_mode, player)
 	_scoreboard.visible = false
 	_root.add_child(_scoreboard)
@@ -130,7 +136,8 @@ func _layout() -> void:
 	_health_label.position = Vector2(margin, screen.y - _health_label.size.y - margin)
 	_ammo_label.position = Vector2(screen.x - _ammo_label.size.x - margin, screen.y - _ammo_label.size.y - margin)
 	_weapon_label.position = Vector2(screen.x - _weapon_label.size.x - margin, _ammo_label.position.y - _weapon_label.size.y)
-	_info_label.position = Vector2(margin, margin)
+	_minimap.position = Vector2(16.0, 16.0)
+	_info_label.position = Vector2(margin, _health_label.position.y - _info_label.size.y - 8.0)
 	_center_label.position = (screen - _center_label.size) / 2.0 + Vector2(0, 60)
 
 	# Placar no topo: "12   9:12   7"
