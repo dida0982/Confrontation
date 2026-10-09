@@ -12,6 +12,9 @@ extends Node
 ##    emite all_loaded e a partida cria os jogadores.
 ##
 ## Jogar sozinho usa o mesmo caminho, só que sem conexão (play_offline).
+##
+## Bots: se bots_enabled, a partida completa os dois times até 5 contra 5 com
+## bots (só o host cria e controla os bots). Eles não entram em "players".
 
 signal players_changed
 ## O servidor confirmou a entrada deste jogador na sala.
@@ -20,6 +23,8 @@ signal joined_lobby
 signal all_loaded
 ## Só no servidor: um jogador saiu (id do jogador).
 signal player_left(id: int)
+## A configuração de bots mudou (a sala mostra para todos).
+signal bots_changed
 
 const PORT := 7777
 const MAX_PER_TEAM := 5
@@ -27,6 +32,11 @@ const MAX_PLAYERS := MAX_PER_TEAM * 2
 const MAX_NAME_LENGTH := 16
 const MENU_SCENE := "res://scenes/menu_principal.tscn"
 const DEFAULT_MAP := "res://scenes/mapas/porto.tscn"
+## Nomes dos bots (cada um ganha "Bot " na frente).
+const BOT_NAMES := [
+	"Tatu", "Jaguar", "Falcão", "Sabiá", "Capivara", "Tucano", "Onça", "Arara",
+	"Gavião", "Quati", "Boto", "Sucuri", "Coruja", "Lobo", "Jacaré",
+]
 
 ## id do jogador -> {"name": String, "team": Team.Id}
 var players := {}
@@ -34,6 +44,10 @@ var in_match := false
 var current_map := ""
 ## Mensagem para mostrar no menu (ex.: "O host fechou a partida").
 var last_message := ""
+## Completar os times com bots até 5 contra 5.
+var bots_enabled := false
+## Dificuldade dos bots (BotController.Difficulty: 0 = Fácil, 1 = Normal, 2 = Difícil).
+var bot_difficulty := 1
 
 var _local_name := ""
 ## Só no servidor: quem já carregou o mapa atual.
@@ -64,6 +78,26 @@ func play_offline(player_name: String, map_path: String) -> void:
 	_close_connection()
 	players = {1: {"name": clean_name(player_name), "team": Team.Id.AZUL}}
 	start_match(map_path)
+
+
+## Joga sozinho no time Azul com 4 bots aliados contra 5 bots inimigos.
+func play_vs_bots(player_name: String, difficulty: int) -> void:
+	_close_connection()
+	players = {1: {"name": clean_name(player_name), "team": Team.Id.AZUL}}
+	bots_enabled = true
+	bot_difficulty = difficulty
+	start_match(DEFAULT_MAP)
+
+
+## Só o host: liga/desliga os bots da sala e escolhe a dificuldade.
+func set_bots(enabled: bool, difficulty: int) -> void:
+	if multiplayer.is_server():
+		_sync_bots.rpc(enabled, difficulty)
+
+
+## Quantos bots entram em cada time para completar 5 contra 5.
+func bots_needed(team: Team.Id) -> int:
+	return maxi(MAX_PER_TEAM - team_count(team), 0) if bots_enabled else 0
 
 
 ## Quando um mapa é aberto direto no editor (F6), sem passar pelo menu:
@@ -174,6 +208,7 @@ func _register(player_name: String) -> void:
 	var team := Team.Id.AZUL if team_count(Team.Id.AZUL) <= team_count(Team.Id.VERMELHO) else Team.Id.VERMELHO
 	players[id] = {"name": clean_name(player_name), "team": team}
 	_sync_players.rpc(players)
+	_sync_bots.rpc_id(id, bots_enabled, bot_difficulty)
 
 
 @rpc("authority", "call_local", "reliable")
@@ -183,6 +218,13 @@ func _sync_players(new_players: Dictionary) -> void:
 	players_changed.emit()
 	if first_time and players.has(local_id()):
 		joined_lobby.emit()
+
+
+@rpc("authority", "call_local", "reliable")
+func _sync_bots(enabled: bool, difficulty: int) -> void:
+	bots_enabled = enabled
+	bot_difficulty = clampi(difficulty, 0, 2)
+	bots_changed.emit()
 
 
 @rpc("authority", "reliable")
@@ -262,6 +304,7 @@ func _close_connection() -> void:
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 	players = {}
 	in_match = false
+	bots_enabled = false
 	_loaded.clear()
 	_all_loaded_sent = false
 

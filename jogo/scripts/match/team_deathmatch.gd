@@ -13,6 +13,11 @@ extends Node
 ## Os outros recebem esses eventos pelas funções _event_* (RPCs).
 ##
 ## Tudo que pode lutar fica no grupo "combatants" e tem um nó filho "Health".
+##
+## Bots (Rede.bots_enabled): o servidor cria bots para completar os times. Um
+## bot é um Player normal (o mesmo boneco) com dono = servidor e um cérebro
+## BotController; o BotDirector organiza o time (rotas, avisos, navegação).
+## Tiros e acertos de bots são conferidos aqui mesmo, sem passar pela rede.
 
 signal kill_registered(killer: Node, victim: Node, headshot: bool)
 ## Abates ou mortes de alguém mudaram (o placar do Tab usa isso).
@@ -38,6 +43,8 @@ const WORLD_MASK := 1
 @export var reveal_time := 3.0
 ## Tira os bonecos de treino quando tem mais de uma pessoa jogando.
 @export var remove_dummies_online := true
+## Nó com as caixas e paredes do mapa (os bots criam a malha de navegação a partir dele).
+@export var map_root: Node3D
 ## Nós cujos filhos (Marker3D) são os pontos de nascimento de cada time.
 @export var spawns_azul: Node3D
 @export var spawns_vermelho: Node3D
@@ -50,6 +57,8 @@ var time_left := 0.0
 var scores := {Team.Id.AZUL: 0, Team.Id.VERMELHO: 0}
 var winner := -1
 var local_player: Player
+## Só no servidor e só com bots: o "técnico" dos bots.
+var bot_director: BotDirector
 
 ## Quem está esperando para renascer -> segundos que faltam.
 var _respawn_timers := {}
@@ -71,7 +80,7 @@ func _ready() -> void:
 
 func _setup() -> void:
 	Rede.ensure_offline_player()
-	if remove_dummies_online and Rede.players.size() > 1:
+	if remove_dummies_online and (Rede.players.size() > 1 or Rede.bots_enabled):
 		for dummy in get_tree().get_nodes_in_group("training_dummy"):
 			dummy.queue_free()
 	for combatant in get_tree().get_nodes_in_group("combatants"):
@@ -80,6 +89,11 @@ func _setup() -> void:
 	if multiplayer.is_server():
 		Rede.all_loaded.connect(_start_match, CONNECT_ONE_SHOT)
 		Rede.player_left.connect(_on_player_left)
+		if Rede.bots_enabled:
+			bot_director = BotDirector.new()
+			bot_director.name = "BotDirector"
+			bot_director.setup(self, map_root if map_root != null else get_parent() as Node3D, Rede.bot_difficulty)
+			add_child(bot_director)
 	Rede.report_map_loaded()
 
 
@@ -150,8 +164,13 @@ func respawn_time_left(combatant: Node) -> float:
 
 # --- Pedidos do jogador local -----------------------------------------------
 
-## O tiro do jogador local acertou alguém na tela dele: pede para o servidor conferir.
-func report_hit(victim: Node, is_head: bool, weapon_index: int, origin: Vector3) -> void:
+## O tiro de um jogador acertou alguém: pede para o servidor conferir.
+## O tiro de um bot já acontece no servidor, então é conferido na hora.
+func report_hit(shooter: Player, victim: Node, is_head: bool, weapon_index: int, origin: Vector3) -> void:
+	if shooter.is_bot:
+		if multiplayer.is_server() and state == State.PLAYING:
+			_handle_hit(shooter, victim, is_head, weapon_index, origin)
+		return
 	_request_hit.rpc_id(1, victim.get_path(), is_head, weapon_index, origin)
 
 
@@ -167,28 +186,37 @@ func _start_match() -> void:
 	_event_start.rpc()
 	# Cada jogador do time começa num ponto de nascimento diferente.
 	var next_spawn := {Team.Id.AZUL: 0, Team.Id.VERMELHO: 0}
+	var entries: Array[Dictionary] = []
 	for id in Rede.players:
 		var info: Dictionary = Rede.players[id]
-		var team: Team.Id = info["team"]
+		entries.append({"id": id, "name": info["name"], "team": info["team"], "bot": false})
+	# Bots completam os times (nomes sorteados, sem repetir).
+	var bot_names := Rede.BOT_NAMES.duplicate()
+	bot_names.shuffle()
+	var bot_number := 0
+	for team in [Team.Id.AZUL, Team.Id.VERMELHO]:
+		for i in Rede.bots_needed(team):
+			bot_number += 1
+			entries.append({"id": 1, "name": "Bot " + bot_names[(bot_number - 1) % bot_names.size()], "team": team, "bot": true, "number": bot_number})
+	for entry in entries:
+		var team: Team.Id = entry["team"]
 		var spawns := spawns_azul if team == Team.Id.AZUL else spawns_vermelho
 		var at := (spawns.get_child(next_spawn[team] % spawns.get_child_count()) as Node3D).global_transform
 		next_spawn[team] += 1
-		spawner.spawn({
-			"id": id,
-			"name": info["name"],
-			"team": info["team"],
-			"origin": at.origin,
-			"yaw": at.basis.get_euler().y,
-			"protection": spawn_protection,
-		})
+		entry["origin"] = at.origin
+		entry["yaw"] = at.basis.get_euler().y
+		entry["protection"] = spawn_protection
+		spawner.spawn(entry)
 
 
 ## Roda em TODOS os computadores quando o servidor cria um jogador.
 func _spawn_player(data: Variant) -> Node:
 	var info: Dictionary = data
 	var id: int = info["id"]
+	var is_bot: bool = info.get("bot", false)
 	var player := PLAYER_SCENE.instantiate() as Player
-	player.name = str(id)
+	player.name = "Bot%d" % info["number"] if is_bot else str(id)
+	player.is_bot = is_bot
 	player.display_name = info["name"]
 	(player.get_node("Health") as Health).team = info["team"]
 	player.position = info["origin"]
@@ -196,7 +224,14 @@ func _spawn_player(data: Variant) -> Node:
 	player.spawn_protection_on_ready = info["protection"]
 	player.set_multiplayer_authority(id)
 	_register_combatant(player)
-	if id == multiplayer.get_unique_id():
+	if is_bot:
+		# O cérebro do bot só existe no servidor; os outros só veem o boneco.
+		if multiplayer.is_server() and bot_director != null:
+			var brain := BotController.new()
+			brain.name = "BotController"
+			brain.director = bot_director
+			player.add_child(brain)
+	elif id == multiplayer.get_unique_id():
 		local_player = player
 		player.ready.connect(func() -> void: local_player_spawned.emit(player), CONNECT_ONE_SHOT)
 	return player
@@ -224,9 +259,14 @@ func _on_player_left(id: int) -> void:
 
 func _on_shot_fired(combatant: Node) -> void:
 	if combatant is Player:
+		var player := combatant as Player
+		if player.is_bot:
+			# Bot atirou (no servidor): avisa todos direto.
+			if multiplayer.is_server() and not player.health.is_dead:
+				_event_shot.rpc(player.get_path(), player.weapons.current_index)
 		# Só o dono do jogador atira de verdade; ele avisa o servidor.
-		if combatant.is_multiplayer_authority():
-			_notify_shot.rpc_id(1, (combatant as Player).weapons.current_index)
+		elif player.is_multiplayer_authority():
+			_notify_shot.rpc_id(1, player.weapons.current_index)
 	else:
 		# Bonecos de treino: cada computador revela o seu.
 		reveal(combatant)
@@ -245,8 +285,11 @@ func _notify_shot(weapon_index: int) -> void:
 func _request_hit(victim_path: NodePath, is_head: bool, weapon_index: int, origin: Vector3) -> void:
 	if not multiplayer.is_server() or state != State.PLAYING:
 		return
-	var shooter := _player_by_id(_sender_id())
-	var victim := get_node_or_null(victim_path)
+	_handle_hit(_player_by_id(_sender_id()), get_node_or_null(victim_path), is_head, weapon_index, origin)
+
+
+## Servidor: confere um acerto e, se for possível, aplica o dano.
+func _handle_hit(shooter: Player, victim: Node, is_head: bool, weapon_index: int, origin: Vector3) -> void:
 	if not _is_valid_hit(shooter, victim, weapon_index, origin):
 		return
 	var weapon: WeaponData = shooter.weapons.weapons[weapon_index]

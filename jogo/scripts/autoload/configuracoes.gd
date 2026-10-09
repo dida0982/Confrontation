@@ -50,6 +50,7 @@ const SAVED := {
 	"microphone": ["voz", "microfone"],
 	"player_name": ["jogador", "nome"],
 	"last_address": ["rede", "ultimo_ip"],
+	"bot_difficulty": ["bots", "dificuldade"],
 }
 
 # Mouse e mira
@@ -85,6 +86,8 @@ var microphone := "Default"
 # Jogador e rede
 var player_name := ""
 var last_address := "127.0.0.1"
+## Última dificuldade de bots escolhida (0 = Fácil, 1 = Normal, 2 = Difícil).
+var bot_difficulty := 1
 
 
 func _ready() -> void:
