@@ -11,6 +11,10 @@ extends CharacterBody3D
 ## - nos outros computadores ele mostra o corpo 3D animado (CharacterModel),
 ##   com contorno na cor do time, e segue as variáveis net_* com suavização.
 ##
+## Bots: o bot é este mesmo jogador, mas com is_bot = true. Ele é simulado no
+## host (servidor) e quem aperta as "teclas" é o cérebro BotController, pelas
+## variáveis input_*. Para os outros computadores ele é um jogador normal.
+##
 ## Sons: passos (silencioso agachado ou deslizando), pulo, aterrissagem e
 ## deslize e, nos outros computadores, o tiro de quem atirou (a arma local toca
 ## o próprio som no WeaponManager).
@@ -45,6 +49,8 @@ signal shot_fired
 
 ## Nome que aparece no feed de abates.
 @export var display_name := "Você"
+## true = controlado pelo computador (BotController), não por uma pessoa.
+var is_bot := false
 
 @export_group("Movimento (metros por segundo)")
 ## Velocidade normal (só com WASD).
@@ -89,6 +95,16 @@ var is_sliding := false
 var controls_enabled := true
 ## Proteção de nascimento para aplicar quando o jogador aparece (a partida define).
 var spawn_protection_on_ready := 0.0
+
+# Comandos de movimento deste quadro. No jogador humano vêm do teclado
+# (_read_keyboard); no bot, o BotController preenche.
+## Direção pedida: x = direita, y = para trás (como Input.get_vector).
+var input_move := Vector2.ZERO
+var input_sprint := false
+var input_crouch := false
+## Pulo pedido neste quadro (é consumido ao pular).
+var input_jump := false
+var _crouch_was_pressed := false
 
 # Copiadas do dono para os outros computadores pelo nó SyncMovimento.
 var net_position := Vector3.ZERO
@@ -153,9 +169,10 @@ func _ready() -> void:
 	else:
 		camera.current = false
 		weapons.visible = false
-		weapons.set_process(false)
 		weapons.set_process_unhandled_input(false)
 		set_process_unhandled_input(false)
+		# O bot (no host) usa as armas de verdade: precisa dos tempos de tiro e recarga.
+		weapons.set_process(is_simulated_here())
 
 	_heard_jumps = net_jumps
 	_heard_landings = net_landings
@@ -166,15 +183,30 @@ func _ready() -> void:
 		_spawn_protection_timer = spawn_protection_on_ready
 
 
-## true no computador de quem controla este jogador.
+## true no computador da PESSOA que controla este jogador (nunca para bots).
 func is_local() -> bool:
+	return is_multiplayer_authority() and not is_bot
+
+
+## true no computador que calcula o movimento deste jogador: o da pessoa
+## que joga com ele ou, no caso de um bot, o host.
+func is_simulated_here() -> bool:
 	return is_multiplayer_authority()
 
 
 ## true se o jogador está vivo e pode se mexer e atirar
 ## (falso com o menu aberto, porque o mouse fica solto).
 func can_act() -> bool:
-	return controls_enabled and not health.is_dead and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+	if not controls_enabled or health.is_dead:
+		return false
+	return is_bot or Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
+
+
+## Velocidade no chão (m/s), também para jogadores de outros computadores.
+## Os bots usam para "ouvir" passos de quem está correndo.
+func ground_speed() -> float:
+	var moving := velocity if is_simulated_here() else _remote_velocity
+	return Vector2(moving.x, moving.z).length()
 
 
 ## Coloca o jogador vivo no ponto de nascimento, com vida e pentes cheios.
@@ -236,9 +268,13 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 func _process(delta: float) -> void:
+	if is_bot:
+		# A mira do bot é a câmera (invisível): o tiro sai dela.
+		camera.rotation.x = look_pitch
+		return
 	if not is_local():
 		# Aviso "FALANDO" em cima de quem está usando o chat de voz perto de você.
-		speaking_label.visible = not health.is_dead and Voz.is_speaking(name.to_int())
+		speaking_label.visible = not health.is_dead and not is_bot and Voz.is_speaking(name.to_int())
 		return
 	camera.rotation.x = look_pitch
 	if _shake > 0.0:
@@ -255,11 +291,16 @@ func _physics_process(delta: float) -> void:
 		if _spawn_protection_timer <= 0.0:
 			health.invulnerable = false
 
-	if not is_local():
+	if not is_simulated_here():
 		_follow_network(delta)
 		return
 
 	var active := can_act()
+	if not is_bot:
+		_read_keyboard(active)
+	elif not active:
+		input_move = Vector2.ZERO
+		input_jump = false
 	_slide_cooldown_timer = maxf(_slide_cooldown_timer - delta, 0.0)
 	if active:
 		_update_slide_start()
@@ -272,14 +313,15 @@ func _physics_process(delta: float) -> void:
 
 	if not is_on_floor():
 		velocity.y -= gravity * delta
-	elif active and Input.is_action_just_pressed("jump"):
+	elif active and input_jump:
 		velocity.y = jump_velocity
 		net_jumps += 1
 		_play_movement_sound(JUMP_SOUND, -4.0)
 		# Pular no meio do deslize mantém o embalo.
 		_end_slide()
 
-	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_back") if active else Vector2.ZERO
+	input_jump = false
+	var input_dir := input_move.limit_length(1.0) if active else Vector2.ZERO
 	var wish_dir := (transform.basis * Vector3(input_dir.x, 0.0, input_dir.y)).normalized()
 	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
 
@@ -312,6 +354,24 @@ func _physics_process(delta: float) -> void:
 	net_crouching = is_crouching
 	net_weapon = weapons.current_index
 	_update_footsteps(_horizontal_speed(), is_on_floor() and not is_sliding, delta)
+	if is_bot:
+		# No host, o corpo do bot é animado aqui (nos outros, por _follow_network).
+		body_visual.set_weapon(weapons.current_index)
+		body_visual.update_movement(global_basis.inverse() * velocity, is_crouching)
+
+
+## Jogador humano: lê o teclado (sem controle com o menu aberto ou morto).
+func _read_keyboard(active: bool) -> void:
+	if not active:
+		input_move = Vector2.ZERO
+		input_sprint = false
+		input_crouch = false
+		input_jump = false
+		return
+	input_move = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
+	input_sprint = Input.is_action_pressed("sprint")
+	input_crouch = Input.is_action_pressed("crouch")
+	input_jump = Input.is_action_just_pressed("jump")
 
 
 ## Faz a câmera tremer um pouco (não mexe na mira).
@@ -400,7 +460,7 @@ func _max_speed() -> float:
 	var speed := run_speed
 	if is_crouching:
 		speed = crouch_speed
-	elif Input.is_action_pressed("sprint"):
+	elif input_sprint:
 		speed = sprint_speed
 	return speed * weapons.get_speed_multiplier()
 
@@ -412,15 +472,17 @@ func _horizontal_speed() -> float:
 ## Começa o deslize quando aperta Ctrl rápido o bastante (no chão, ou ao
 ## aterrissar se apertou no ar depois de pular correndo).
 func _update_slide_start() -> void:
+	var crouch_just_pressed := input_crouch and not _crouch_was_pressed
+	_crouch_was_pressed = input_crouch
 	if is_sliding:
 		return
-	if Input.is_action_just_pressed("crouch") and _horizontal_speed() >= slide_min_speed and _slide_cooldown_timer <= 0.0:
+	if crouch_just_pressed and _horizontal_speed() >= slide_min_speed and _slide_cooldown_timer <= 0.0:
 		if is_on_floor():
 			_start_slide()
 		else:
 			_slide_queued = true
 	if _slide_queued:
-		if not Input.is_action_pressed("crouch"):
+		if not input_crouch:
 			_slide_queued = false
 		elif is_on_floor():
 			_slide_queued = false
@@ -452,12 +514,12 @@ func _update_slide_after_move() -> void:
 	_slide_speed = minf(_slide_speed, real_speed)
 	if real_speed > 0.1:
 		_slide_direction = Vector3(velocity.x, 0.0, velocity.z) / real_speed
-	if _slide_speed <= slide_end_speed or not is_on_floor() or not Input.is_action_pressed("crouch") or not can_act():
+	if _slide_speed <= slide_end_speed or not is_on_floor() or not input_crouch or not can_act():
 		_end_slide()
 
 
 func _update_crouch(delta: float) -> void:
-	var wants_crouch := Input.is_action_pressed("crouch") or is_sliding
+	var wants_crouch := input_crouch or is_sliding
 	if wants_crouch and not is_crouching:
 		_set_crouch(true)
 	elif not wants_crouch and is_crouching and _can_stand_up():

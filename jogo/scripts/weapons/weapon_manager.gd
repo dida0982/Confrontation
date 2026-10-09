@@ -15,6 +15,9 @@ extends Node3D
 ## - recarregar: a arma inclina, a mão esquerda tira o pente, pega outro e
 ##   encaixa (os braços leem reload_progress());
 ## - andar: a arma balança de leve; atirar: dá um tranco para trás.
+##
+## Bots usam as mesmas armas: o BotController chama equip(), set_scoped(),
+## start_reload() e pull_trigger() em vez do mouse e do teclado.
 
 signal hit_confirmed(headshot: bool, killed: bool)
 ## Disparou um tiro (usado para revelar o atirador no minimapa).
@@ -105,6 +108,22 @@ func ammo_in_magazine() -> int:
 
 func is_reloading() -> bool:
 	return _reload_timer > 0.0
+
+
+## true quando a arma na mão pode atirar agora (sacada, sem recarregar, sem esperar a cadência).
+func is_ready_to_fire() -> bool:
+	return _fire_cooldown <= 0.0 and _equip_timer <= 0.0 and not is_reloading() and _magazine[current_index] > 0
+
+
+## Balas no pente de uma arma qualquer (não só a da mão).
+func ammo_of(index: int) -> int:
+	return _magazine[index]
+
+
+## Bot: aperta o gatilho uma vez (respeita cadência, troca e recarga).
+func pull_trigger() -> void:
+	if player.can_act():
+		_try_fire()
 
 
 ## Quanto da recarga já passou (0 a 1), ou -1 se não está recarregando.
@@ -206,6 +225,8 @@ func _process(delta: float) -> void:
 
 	_animate(delta)
 
+	if player.is_bot:
+		return
 	if _fire_blocked:
 		if Input.is_action_pressed("fire"):
 			return
@@ -283,8 +304,8 @@ func _shoot_ray(weapon: WeaponData) -> void:
 		hit_confirmed.emit(hitbox.is_head, false)
 		var match_mode := get_tree().get_first_node_in_group("match") as TeamDeathmatch
 		if match_mode != null:
-			match_mode.report_hit(hitbox.owner, hitbox.is_head, current_index, from)
-	else:
+			match_mode.report_hit(player, hitbox.owner, hitbox.is_head, current_index, from)
+	elif player.is_local():
 		_spawn_impact_mark(hit.position, hit.normal)
 
 
@@ -342,6 +363,9 @@ func _animate(delta: float) -> void:
 
 
 func _play_shot_effects() -> void:
+	# Bots: o host toca o tiro no boneco (som 3D), pelo evento de tiro da partida.
+	if not player.is_local():
+		return
 	if current_index < shot_sounds.size():
 		_shot_player.stream = shot_sounds[current_index]
 		_shot_player.pitch_scale = randf_range(0.96, 1.04)
