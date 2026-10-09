@@ -6,3 +6,6 @@ jogo/.godot/
 builds/
 *.exe
 *.pck
+
+# Testes descartáveis (capturas de tela, experimentos). Os testes de verdade ficam em jogo/testes/
+jogo/tests_tmp/

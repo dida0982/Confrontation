@@ -15,6 +15,11 @@ Obrigado por ajudar! Este guia explica como o projeto é organizado e como escre
 - Para tarefas maiores, crie uma branch: `feat/nome-curto`, `fix/nome-curto` ou `docs/nome-curto`.
 - Faça commits pequenos, cada um com **uma única mudança lógica**.
 - Ao terminar uma fase ou tarefa, atualize o roadmap e o arquivo `docs/` correspondente.
+- **Antes de commitar, rode os testes automáticos** (levam cerca de 1 minuto, sem abrir janela):
+  ```
+  Godot_v4.7.2-stable_win64_console.exe --headless --path jogo -s res://testes/rodar_testes.gd
+  ```
+  Tem que aparecer `TUDO CERTO`. Mudou uma regra do jogo? Atualize ou crie o teste em `jogo/testes/testes.gd`.
 
 ## Padrão de commits
 
