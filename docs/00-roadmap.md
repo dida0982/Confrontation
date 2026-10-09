@@ -9,9 +9,9 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 
 ## Onde estamos agora
 
-**Feito:** Fases 0 a 10 (jogo completo jogável em rede, com voz, interface nova, personagem e armas 3D com mãos e animações, texturas e sons)
-**Agora:** testar seguindo [10-interface-arte-e-som.md](10-interface-arte-e-som.md)
-**Próximo passo:** Fase 11, bots (NPCs inteligentes) e o modo 5x5 contra bots
+**Feito:** Fases 0 a 11 (jogo completo em rede, com voz, arte e som, e **bots inteligentes** no modo 5x5 contra bots). Versão **0.2.0** publicada. Fase 12 quase toda feita: desempenho medido, bugs corrigidos e testes automáticos
+**Agora:** jogar contra os bots e com amigos e anotar o que melhorar ([11-bots.md](11-bots.md), [12-polimento-e-testes.md](12-polimento-e-testes.md))
+**Próximo passo:** decidir o estudo de bots que aprendem com o seu jeito de jogar ([13-estudo-bots-que-aprendem.md](13-estudo-bots-que-aprendem.md))
 
 ---
 
@@ -112,32 +112,48 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 - [x] Sons de tiro (3D para os outros), passos, recarga, troca de arma e acerto
 - [ ] (Depois) Animação de recarga, sons por tipo de chão, efeitos de impacto (faíscas, poeira)
 
-### Fase 11: Bots (NPCs inteligentes) ⬅️ PRÓXIMA
+### Fase 11: Bots (NPCs inteligentes) ✅
 
 **Objetivo:** um modo **5x5 com bots**. Você joga com 4 bots no seu time contra 5 bots no outro, e eles se mexem e lutam de um jeito parecido com jogadores de verdade. Também dá para completar uma partida online com bots quando faltar gente.
 
 **Como vai funcionar:**
-- [ ] **Navegação:** o mapa ganha uma malha de navegação (`NavigationRegion3D`, recurso grátis do Godot). Cada bot usa um `NavigationAgent3D` para achar caminhos, desviar de caixas e paredes e subir rampas
-- [ ] **O mesmo boneco dos jogadores:** o bot é o mesmo `Player`, só que controlado por um "cérebro" (`BotController`) em vez de teclado e mouse. Assim usa as mesmas armas, regras de dano, animações, sons e rede
-- [ ] **Visão de verdade:** o bot só "vê" quem está no campo de visão dele e sem parede no meio (raio de visão). Ouve tiros e passos por perto e aparece no minimapa ao atirar, como os jogadores
-- [ ] **Comportamentos (máquina de estados):**
+- [x] **Navegação:** o mapa ganha uma malha de navegação (`NavigationRegion3D`, recurso grátis do Godot). Cada bot usa um `NavigationAgent3D` para achar caminhos, desviar de caixas e paredes e subir rampas
+- [x] **O mesmo boneco dos jogadores:** o bot é o mesmo `Player`, só que controlado por um "cérebro" (`BotController`) em vez de teclado e mouse. Assim usa as mesmas armas, regras de dano, animações, sons e rede
+- [x] **Visão de verdade:** o bot só "vê" quem está no campo de visão dele e sem parede no meio (raio de visão). Ouve tiros e passos por perto e aparece no minimapa ao atirar, como os jogadores
+- [x] **Comportamentos (máquina de estados):**
   - **Patrulhar:** escolhe uma rota (A, Meio ou B) e anda até pontos importantes do mapa, olhando para as quinas
   - **Combater:** ao ver um inimigo, mira com tempo de reação e erro de mira (como um humano), atira em rajadas curtas, faz **strafe** (anda de um lado para o outro atirando, como no Valorant), agacha às vezes e escolhe a arma certa pela distância (sniper de longe, fuzil no meio, pistola ao ficar sem bala)
   - **Procurar cobertura:** com inimigo perto demais ou recarregando, vai para trás de uma caixa ou parede
   - **Investigar:** vai até onde ouviu um tiro ou viu alguém no minimapa
   - **Flanquear:** às vezes vai por outra rota para pegar o inimigo pelas costas
-- [ ] **Trabalho em equipe:** os bots se dividem entre as rotas (não vão todos juntos), avisam os aliados onde viram inimigos e seguem o jogador do time de vez em quando
-- [ ] **Dificuldade (Fácil, Normal, Difícil):** muda o tempo de reação, a precisão da mira, o quanto miram na cabeça e o quanto usam strafe e cobertura
-- [ ] **Menu:** botão "Jogar contra bots (5x5)" com a escolha de dificuldade; na sala online, o host pode completar os times com bots
-- [ ] **Rede:** os bots rodam só no host (servidor); para os outros computadores eles aparecem como jogadores normais
-- [ ] **Bots com nome** e no placar do Tab, no feed de abates e no minimapa
+- [x] **Trabalho em equipe:** os bots se dividem entre as rotas (não vão todos juntos), avisam os aliados onde viram inimigos e seguem o jogador do time de vez em quando
+- [x] **Dificuldade (Fácil, Normal, Difícil):** muda o tempo de reação, a precisão da mira, o quanto miram na cabeça e o quanto usam strafe e cobertura
+- [x] **Menu:** botão "Jogar contra bots (5x5)" com a escolha de dificuldade; na sala online, o host pode completar os times com bots
+- [x] **Rede:** os bots rodam só no host (servidor); para os outros computadores eles aparecem como jogadores normais
+- [x] **Bots com nome** e no placar do Tab, no feed de abates e no minimapa
+- Arquivo: [11-bots.md](11-bots.md)
 
-### Fase 12: Polimento e distribuição
+### Fase 12: Polimento e distribuição ⬅️ AGORA
 
-- [ ] Otimização (FPS alto é obrigatório em jogo de tiro)
-- [ ] Testes com jogadores e correção de bugs
-- [x] Exportar o jogo para Windows (`Confrontation.exe`) e publicar no GitHub Releases ([08-gerar-e-publicar-o-jogo.md](08-gerar-e-publicar-o-jogo.md))
+- [x] Otimização: medido ~500 FPS com 10 bonecos na tela; consulta de "levantar" reaproveitada
+- [x] Correção de bugs (bots parados no começo, microfone preso ao sair, Ctrl com o menu aberto)
+- [x] Testes automáticos sem janela (`jogo/testes/`): dano, tiro, proteção, rotas e partida com bots
+- [x] Exportar o jogo para Windows (`Confrontation.exe`) e publicar no GitHub Releases ([08-gerar-e-publicar-o-jogo.md](08-gerar-e-publicar-o-jogo.md)); 0.2.0 publicada
+- [ ] Testes com pessoas de verdade (amigos online e contra bots)
+- [ ] Publicar a 0.3.0 com os bots
 - [ ] Publicar grátis, se quiser (ex.: itch.io)
+- Arquivo: [12-polimento-e-testes.md](12-polimento-e-testes.md)
+
+### Fase 13 (proposta): bots que aprendem com o seu jeito de jogar
+
+Estudo em [13-estudo-bots-que-aprendem.md](13-estudo-bots-que-aprendem.md). Recomendação: gravar suas partidas e transformar num perfil e numa biblioteca de movimentos que os bots usam (sem rede neural no começo).
+
+- [ ] Gravador de partidas
+- [ ] Perfil do jogador (rotas, reação, mira, strafe, armas)
+- [ ] Biblioteca de movimentos de combate
+- [ ] Contra-tática: inimigos que se adaptam a você
+- [ ] Personalidades (agressivo, lurker, sniper, suporte)
+- [ ] (Opcional) Rede neural de imitação
 
 ### Futuro: modo plantar a bomba
 
@@ -173,7 +189,8 @@ Sempre que terminar uma fase, marque com `[x]` e vá para o arquivo da próxima.
 | Como falar | Segurando V (padrão) ou voz aberta, escolhido no menu |
 | Alcance da voz | 25 m, abafada atrás de paredes |
 | Inimigos ouvem sua voz? | Sim, se estiverem perto |
+| Bots | Mesmo boneco dos jogadores, rodam só no host; 3 dificuldades; completam os times até 5x5 |
 
 ## Decisões pendentes
 
-Nenhuma no momento.
+- Fase 13: começar pelo gravador + perfil do jogador? Bots aprendem só com você ou também com os amigos? Ter o modo "Bot espelho"? (ver [13-estudo-bots-que-aprendem.md](13-estudo-bots-que-aprendem.md))
