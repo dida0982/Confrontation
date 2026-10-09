@@ -132,6 +132,8 @@ var _slide_speed := 0.0
 var _slide_cooldown_timer := 0.0
 ## Apertou Ctrl no ar com velocidade: desliza ao tocar o chão.
 var _slide_queued := false
+## Consulta reaproveitada para ver se dá para levantar (criada uma vez só).
+var _stand_query: PhysicsShapeQueryParameters3D
 
 @onready var head: Node3D = $Head
 @onready var camera: Camera3D = $Head/Camera3D
@@ -360,17 +362,17 @@ func _physics_process(delta: float) -> void:
 		body_visual.update_movement(global_basis.inverse() * velocity, is_crouching)
 
 
-## Jogador humano: lê o teclado (sem controle com o menu aberto ou morto).
+## Jogador humano: lê o teclado (sem andar com o menu aberto ou morto).
 func _read_keyboard(active: bool) -> void:
+	# Agachar continua valendo com o menu aberto (abrir o menu não levanta o jogador).
+	input_crouch = Input.is_action_pressed("crouch")
 	if not active:
 		input_move = Vector2.ZERO
 		input_sprint = false
-		input_crouch = false
 		input_jump = false
 		return
 	input_move = Input.get_vector("move_left", "move_right", "move_forward", "move_back")
 	input_sprint = Input.is_action_pressed("sprint")
-	input_crouch = Input.is_action_pressed("crouch")
 	input_jump = Input.is_action_just_pressed("jump")
 
 
@@ -549,13 +551,15 @@ func _set_crouch(value: bool) -> void:
 
 
 ## Confere se tem espaço acima da cabeça para levantar.
+## (Roda a cada quadro de física enquanto agachado: a consulta é criada uma vez só.)
 func _can_stand_up() -> bool:
-	var shape := CapsuleShape3D.new()
-	shape.radius = CAPSULE_RADIUS - 0.05
-	shape.height = STAND_HEIGHT - 0.1
-	var query := PhysicsShapeQueryParameters3D.new()
-	query.shape = shape
-	query.transform = global_transform.translated(Vector3(0.0, STAND_HEIGHT / 2.0 + 0.05, 0.0))
-	query.collision_mask = collision_mask
-	query.exclude = [get_rid()]
-	return get_world_3d().direct_space_state.intersect_shape(query, 1).is_empty()
+	if _stand_query == null:
+		var shape := CapsuleShape3D.new()
+		shape.radius = CAPSULE_RADIUS - 0.05
+		shape.height = STAND_HEIGHT - 0.1
+		_stand_query = PhysicsShapeQueryParameters3D.new()
+		_stand_query.shape = shape
+		_stand_query.exclude = [get_rid()]
+	_stand_query.transform = global_transform.translated(Vector3(0.0, STAND_HEIGHT / 2.0 + 0.05, 0.0))
+	_stand_query.collision_mask = collision_mask
+	return get_world_3d().direct_space_state.intersect_shape(_stand_query, 1).is_empty()
