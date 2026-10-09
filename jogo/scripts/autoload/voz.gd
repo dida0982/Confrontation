@@ -57,6 +57,13 @@ func _ready() -> void:
 	_apply_settings()
 
 
+## Ao fechar o jogo: desliga o microfone (senão ele fica preso na memória até o fim).
+func _exit_tree() -> void:
+	if _mic_player != null:
+		_mic_player.stop()
+		_mic_player.stream = null
+
+
 # --- Consultas ---------------------------------------------------------------
 
 ## true se o jogador com esse id falou há pouco (para mostrar quem está falando).
