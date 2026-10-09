@@ -99,19 +99,27 @@ func _bake_navigation() -> void:
 	mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
 	mesh.geometry_collision_mask = 1
 
-	_region = NavigationRegion3D.new()
-	_region.name = "NavegacaoBots"
-	_region.navigation_mesh = mesh
-	_map_root.get_parent().add_child(_region)
-
 	var source := _collect_geometry(mesh)
 	NavigationServer3D.bake_from_source_geometry_data_async(mesh, source, func() -> void:
+		if not is_inside_tree():
+			return
+		# Só cria a região com a malha pronta (os bots esperam nav_ready).
+		_region = NavigationRegion3D.new()
+		_region.name = "NavegacaoBots"
 		_region.navigation_mesh = mesh
-		# Espera o servidor de navegação montar o mapa antes de liberar os bots.
-		await get_tree().physics_frame
-		await get_tree().physics_frame
-		nav_ready = true
+		_map_root.get_parent().add_child(_region)
 	)
+
+
+func _physics_process(_delta: float) -> void:
+	if nav_ready or _region == null:
+		return
+	# A malha entra no mapa de navegação alguns quadros depois de a região
+	# aparecer. Fica pronta quando o mapa já responde com um ponto dela.
+	var spot := (_region.navigation_mesh.get_vertices()[0]) if _region.navigation_mesh.get_vertices().size() > 0 else Vector3.ZERO
+	if NavigationServer3D.map_get_closest_point_owner(navigation_map(), spot) == _region.get_rid():
+		nav_ready = true
+		set_physics_process(false)
 
 
 ## Geometria do mapa para a malha. As caixas CSGBox3D com colisão viram caixas
