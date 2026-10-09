@@ -1,6 +1,11 @@
 # Passo 08: Gerar o jogo (.exe) e publicar para os amigos
 
-**O que foi feito:** o jogo virou um programa normal do Windows, o `Confrontation.exe`, e o primeiro download está publicado no GitHub.
+**O que foi feito:** o jogo virou um programa normal do Windows, o `Confrontation.exe`, e os downloads estão publicados no GitHub.
+
+| Versão | Data | O que trouxe |
+|---|---|---|
+| 0.1.0 | 2026-10-08 | Primeira versão: mata-mata 5v5 em rede, mapa Porto, 3 armas |
+| 0.2.0 | 2026-10-09 | Chat de voz por proximidade, interface nova, personagem e armas 3D, texturas, sons e anúncios de abate |
 
 🔗 **Link para mandar aos amigos:** <https://github.com/dida0982/Confrontation/releases/latest>
 
@@ -8,7 +13,7 @@
 
 ## 1. Como os amigos entram na partida
 
-1. **Baixar o jogo** pelo link acima: o arquivo `Confrontation-v0.1.0-windows.zip`, em **Assets**.
+1. **Baixar o jogo** pelo link acima: o arquivo `Confrontation-v0.2.0-windows.zip` (versão mais nova), em **Assets**.
 2. **Extrair** o `.zip` e abrir o `Confrontation.exe`. Não precisa instalar o Godot nem mais nada.
    - Se aparecer **"O Windows protegeu o computador"**, clique em **Mais informações → Executar assim mesmo**. Esse aviso aparece porque o jogo não tem uma assinatura digital (que é paga). Não é vírus.
 3. **Ficar na mesma rede que o host:**

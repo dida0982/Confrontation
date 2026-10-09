@@ -1,4 +1,4 @@
-﻿CONFRONTATION - versão 0.1.0
+﻿CONFRONTATION - versão 0.2.0
 FPS tático 5 contra 5, sem habilidades. Feito com Godot (grátis).
 Site do projeto: https://github.com/dida0982/Confrontation
 
