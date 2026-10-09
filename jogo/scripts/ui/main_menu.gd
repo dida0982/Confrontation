@@ -2,8 +2,9 @@ extends Control
 ## Menu principal: o mapa Porto em 3D ao fundo (câmera girando devagar) e, à
 ## esquerda, o título e os botões, no estilo do Valorant.
 ##
-## Páginas: início (nome e botões), entrar (IP do host), sala (lobby com os
-## times) e configurações (o mesmo painel do menu do Esc).
+## Páginas: início (nome e botões), contra bots (dificuldade), entrar (IP do
+## host), sala (lobby com os times e a opção de bots) e configurações (o mesmo
+## painel do menu do Esc).
 
 const COLUMN_WIDTH := 460.0
 const TRAINING_ROOM := "res://scenes/sala_de_treino.tscn"
@@ -25,6 +26,7 @@ const CREDITS := """[b]CONFRONTATION[/b] usa só recursos gratuitos:
 """
 
 var _start_page: VBoxContainer
+var _bots_page: VBoxContainer
 var _join_page: VBoxContainer
 var _lobby_page: VBoxContainer
 var _settings_page: VBoxContainer
@@ -37,6 +39,10 @@ var _host_info_label: Label
 var _team_lists := {}
 var _team_buttons := {}
 var _start_button: Button
+var _bots_info_label: Label
+var _bots_toggle: CheckButton
+var _bots_difficulty: OptionButton
+var _difficulty_buttons: Array[Button] = []
 var _settings: SettingsPanel
 var _camera: Camera3D
 var _orbit_angle := 0.6
@@ -46,6 +52,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_build()
 	Rede.players_changed.connect(_refresh_lobby)
+	Rede.bots_changed.connect(_refresh_lobby)
 	Rede.joined_lobby.connect(func() -> void: _show_page(_lobby_page))
 	_message_label.text = Rede.last_message
 	_message_label.visible = not Rede.last_message.is_empty()
@@ -62,7 +69,7 @@ func _process(delta: float) -> void:
 
 
 func _show_page(page: Control) -> void:
-	for each in [_start_page, _join_page, _lobby_page, _settings_page, _credits_page]:
+	for each in [_start_page, _bots_page, _join_page, _lobby_page, _settings_page, _credits_page]:
 		(each as Control).visible = each == page
 	# As configurações precisam de mais espaço.
 	_column.custom_minimum_size.x = SettingsPanel.WIDTH if page == _settings_page else COLUMN_WIDTH
@@ -82,6 +89,16 @@ func _player_name() -> String:
 
 func _on_train_pressed(map_path: String) -> void:
 	Rede.play_offline(_player_name(), map_path)
+
+
+func _on_bots_pressed() -> void:
+	Rede.play_vs_bots(_player_name(), Configuracoes.bot_difficulty)
+
+
+func _select_difficulty(difficulty: int) -> void:
+	Configuracoes.set_option("bot_difficulty", difficulty)
+	for i in _difficulty_buttons.size():
+		_difficulty_buttons[i].button_pressed = i == difficulty
 
 
 func _on_host_pressed() -> void:
@@ -130,6 +147,16 @@ func _refresh_lobby() -> void:
 		var my_team: int = Rede.players.get(Rede.local_id(), {}).get("team", -1)
 		button.disabled = my_team == team or Rede.team_count(team) >= Rede.MAX_PER_TEAM
 	_start_button.visible = is_host
+	# Bots: o host liga e escolhe a dificuldade; os outros só veem.
+	_bots_toggle.visible = is_host
+	_bots_difficulty.visible = is_host and Rede.bots_enabled
+	_bots_toggle.set_pressed_no_signal(Rede.bots_enabled)
+	_bots_difficulty.select(Rede.bot_difficulty)
+	if Rede.bots_enabled:
+		_bots_info_label.text = "Bots (%s) completam os times: %d no Azul, %d no Vermelho." % [
+			BotController.DIFFICULTY_NAMES[Rede.bot_difficulty], Rede.bots_needed(Team.Id.AZUL), Rede.bots_needed(Team.Id.VERMELHO)]
+	else:
+		_bots_info_label.text = "Sem bots: só jogadores de verdade."
 	if is_host:
 		var addresses := Rede.local_addresses()
 		_host_info_label.text = "Seus amigos entram com o IP: %s  (porta %d)" % [
@@ -189,11 +216,13 @@ func _build() -> void:
 	_column.add_child(_message_label)
 
 	_start_page = _page()
+	_bots_page = _page()
 	_join_page = _page()
 	_lobby_page = _page()
 	_settings_page = _page()
 	_credits_page = _page()
 	_build_start_page()
+	_build_bots_page()
 	_build_join_page()
 	_build_lobby_page()
 	_build_settings_page()
@@ -244,13 +273,51 @@ func _build_start_page() -> void:
 	_start_page.add_child(_name_edit)
 	_start_page.add_child(_spacer(4))
 
-	_start_page.add_child(_button("Criar partida", _on_host_pressed, true))
+	_start_page.add_child(_button("Jogar contra bots (5x5)", func() -> void: _show_page(_bots_page), true))
+	_start_page.add_child(_button("Criar partida", _on_host_pressed))
 	_start_page.add_child(_button("Entrar em partida", func() -> void: _show_page(_join_page)))
 	_start_page.add_child(_button("Treinar sozinho no Porto", func() -> void: _on_train_pressed(Rede.DEFAULT_MAP)))
 	_start_page.add_child(_button("Sala de treino", func() -> void: _on_train_pressed(TRAINING_ROOM)))
 	_start_page.add_child(_button("Configurações", func() -> void: _show_page(_settings_page)))
 	_start_page.add_child(_button("Créditos", func() -> void: _show_page(_credits_page)))
 	_start_page.add_child(_button("Sair do jogo", func() -> void: get_tree().quit()))
+
+
+func _build_bots_page() -> void:
+	var panel := PanelContainer.new()
+	_bots_page.add_child(panel)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 10)
+	panel.add_child(box)
+	var title := _label("CONTRA BOTS  •  5 CONTRA 5", 30)
+	title.add_theme_font_override("font", GameTheme.bold_font())
+	box.add_child(title)
+	var about := _label("Você joga no time Azul com 4 bots contra 5 bots no Vermelho. Eles patrulham as rotas, fazem strafe, procuram cobertura e avisam os aliados.", 17)
+	about.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	box.add_child(about)
+	box.add_child(_label("DIFICULDADE", 18))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var group := ButtonGroup.new()
+	for i in BotController.DIFFICULTY_NAMES.size():
+		var difficulty := i
+		var button := _button(BotController.DIFFICULTY_NAMES[i], func() -> void: _select_difficulty(difficulty))
+		button.toggle_mode = true
+		button.button_group = group
+		button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(button)
+		_difficulty_buttons.append(button)
+	box.add_child(row)
+	var hints := _label("Fácil: demoram para reagir e erram bastante.
+Normal: parecido com um jogador comum.
+Difícil: reagem rápido, miram na cabeça e usam cobertura.", 16)
+	hints.add_theme_color_override("font_color", GameTheme.TEXT_DIM)
+	box.add_child(hints)
+	_select_difficulty(clampi(Configuracoes.bot_difficulty, 0, 2))
+
+	_bots_page.add_child(_button("Começar", _on_bots_pressed, true))
+	_bots_page.add_child(_button("Voltar", func() -> void: _show_page(_start_page)))
 
 
 func _build_join_page() -> void:
@@ -287,7 +354,7 @@ func _build_lobby_page() -> void:
 		team_title.add_theme_color_override("font_color", Team.color_of(team))
 		column.add_child(team_title)
 		var list := _label("", 19)
-		list.custom_minimum_size = Vector2(0, 140)
+		list.custom_minimum_size = Vector2(0, 120)
 		list.vertical_alignment = VERTICAL_ALIGNMENT_TOP
 		column.add_child(list)
 		_team_lists[team] = list
@@ -297,6 +364,26 @@ func _build_lobby_page() -> void:
 		_team_buttons[team] = button
 		columns.add_child(column)
 	box.add_child(columns)
+
+	_bots_toggle = CheckButton.new()
+	_bots_toggle.text = "Completar os times com bots (até 5 contra 5)"
+	_bots_toggle.focus_mode = Control.FOCUS_NONE
+	_bots_toggle.add_theme_font_size_override("font_size", 18)
+	_bots_toggle.toggled.connect(func(on: bool) -> void: Rede.set_bots(on, _bots_difficulty.selected))
+	box.add_child(_bots_toggle)
+	_bots_difficulty = OptionButton.new()
+	_bots_difficulty.focus_mode = Control.FOCUS_NONE
+	for difficulty_name in BotController.DIFFICULTY_NAMES:
+		_bots_difficulty.add_item("Dificuldade dos bots: " + difficulty_name)
+	_bots_difficulty.select(clampi(Configuracoes.bot_difficulty, 0, 2))
+	_bots_difficulty.item_selected.connect(func(index: int) -> void:
+		Configuracoes.set_option("bot_difficulty", index)
+		Rede.set_bots(true, index))
+	box.add_child(_bots_difficulty)
+	_bots_info_label = _label("", 17)
+	_bots_info_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_bots_info_label.add_theme_color_override("font_color", GameTheme.TEXT_DIM)
+	box.add_child(_bots_info_label)
 
 	_start_button = _button("Começar partida", func() -> void: Rede.start_match(Rede.DEFAULT_MAP), true)
 	_lobby_page.add_child(_start_button)
