@@ -13,7 +13,7 @@ Todo o projeto é feito **somente com softwares gratuitos**.
 - Todo jogador nasce com as mesmas 3 armas. Não tem granada, fumaça, flash nem nenhum outro utilitário.
 - **Chat de voz por proximidade:** você ouve a voz dos outros jogadores saindo do boneco deles. Quanto mais perto, mais alto; longe, ninguém ouve.
 - Modo atual: **mata-mata em equipe** (detalhes abaixo). O modo de plantar a bomba fica para o futuro.
-- Em breve: **modo 5x5 contra bots** inteligentes, para jogar sozinho com e contra a máquina.
+- **Modo 5x5 contra bots:** jogue sozinho com 4 bots aliados contra 5 bots, em 3 dificuldades. Online, o host pode completar os times com bots ([como os bots funcionam](docs/11-bots.md)).
 
 ## 2. Regras de combate
 
@@ -74,8 +74,9 @@ Depois, vamos fazer o modo competitivo do Valorant: o Ataque planta a bomba no *
 **Vai desenvolver?**
 
 1. Abra o projeto no Godot e aperte **F5**.
-2. No menu, escolha **Treinar sozinho**, **Criar partida** (você vira o host) ou **Entrar em partida** (digite o IP do host).
+2. No menu, escolha **Jogar contra bots (5x5)**, **Criar partida** (você vira o host), **Entrar em partida** (digite o IP do host) ou **Treinar sozinho**.
 3. Para jogar com amigos pela internet, veja [docs/07-multiplayer.md](docs/07-multiplayer.md).
+4. Antes de commitar, rode os testes automáticos ([docs/12-polimento-e-testes.md](docs/12-polimento-e-testes.md)).
 
 ## 7. Ferramentas (todas gratuitas)
 
@@ -110,12 +111,16 @@ jogo de fps/
 │   ├── 07-multiplayer.md
 │   ├── 08-gerar-e-publicar-o-jogo.md
 │   ├── 09-chat-de-voz.md
-│   ├── 10-interface-arte-e-som.md          ← o que foi feito por último
+│   ├── 10-interface-arte-e-som.md
+│   ├── 11-bots.md                          ← bots e o modo 5x5 contra bots
+│   ├── 12-polimento-e-testes.md            ← desempenho, bugs e testes automáticos
+│   ├── 13-estudo-bots-que-aprendem.md      ← estudo: bots que aprendem com você
 │   └── img/                                ← planta e fotos dos mapas
 ├── distribuicao/    ← LEIA-ME.txt que vai junto no download do jogo
 └── jogo/            ← projeto do Godot (abra o arquivo project.godot)
     ├── scenes/      ← cenas (mapas/, armas/, personagem, sala de treino, jogador, boneco)
-    ├── scripts/     ← código (GDScript); scripts/match/ tem as regras da partida
+    ├── scripts/     ← código (GDScript); match/ = regras da partida, bots/ = cérebro dos bots
+    ├── testes/      ← testes automáticos (rodam sem abrir janela)
     ├── weapons/     ← números de cada arma (fuzil, pistola, sniper)
     ├── modelos/     ← personagem e armas 3D (.glb)
     ├── texturas/    ← texturas do mapa

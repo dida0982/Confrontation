@@ -10,7 +10,10 @@ COMO ABRIR
    (Isso aparece porque o jogo é novo e não tem assinatura paga da Microsoft.)
 
 JOGAR SOZINHO
-No menu, clique em "Treinar sozinho no Porto" ou "Sala de treino".
+No menu, clique em "Jogar contra bots (5x5)" e escolha a dificuldade
+(Fácil, Normal ou Difícil): você joga com 4 bots contra 5 bots.
+Para treinar a mira: "Treinar sozinho no Porto" ou "Sala de treino".
+Online, o host pode ligar "Completar os times com bots" na sala.
 
 JOGAR COM AMIGOS NA MESMA CASA (mesmo Wi-Fi)
 1. Quem vai hospedar clica em "Criar partida".
